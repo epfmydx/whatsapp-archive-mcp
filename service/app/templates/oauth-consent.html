@@ -1,0 +1,11 @@
+{% extends "base.html" %}
+{% block title %}Allow archive access{% endblock %}
+{% block content %}
+<div class="form-page consent-page"><p class="eyebrow">Archive access</p><h1>Allow {{ client_name }} to read your archive?</h1>
+<p>This includes archived messages, media and transcripts from your profiles.</p>
+<p class="muted">The app name is unverified. Check its callback URL before continuing.</p>
+<p class="callback-label">Callback URL</p><p class="oauth-callback"><code>{{ callback }}</code></p>
+<form method="post"><input type="hidden" name="csrf" value="{{ csrf_token }}">
+<p class="muted">This server provides read-only tools. It cannot send messages or change your WhatsApp conversations.</p>
+<div class="form-actions"><button name="approve" value="yes">Allow access</button><button class="secondary" name="approve" value="no">Cancel</button></div></form></div>
+{% endblock %}

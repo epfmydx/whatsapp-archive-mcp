@@ -1,0 +1,492 @@
+[
+  {
+    "name": "authlib",
+    "pinned_version": "1.9.1",
+    "used_by": [
+      "service/requirements.lock"
+    ],
+    "notice_files": [
+      "LICENSES/python/authlib@1.9.1/LICENSE"
+    ],
+    "status": "notice_copied"
+  },
+  {
+    "name": "blinker",
+    "pinned_version": "1.9.0",
+    "used_by": [
+      "service/requirements.lock"
+    ],
+    "notice_files": [
+      "LICENSES/python/blinker@1.9.0/LICENSE.txt"
+    ],
+    "status": "notice_copied"
+  },
+  {
+    "name": "boto3",
+    "pinned_version": "1.40.61",
+    "used_by": [
+      "worker/requirements.txt"
+    ],
+    "notice_files": [],
+    "status": "not_installed_in_service_qualification_environment"
+  },
+  {
+    "name": "boto3",
+    "pinned_version": "1.43.118",
+    "used_by": [
+      "service/requirements.lock"
+    ],
+    "notice_files": [
+      "LICENSES/python/boto3@1.43.118/LICENSE",
+      "LICENSES/python/boto3@1.43.118/NOTICE"
+    ],
+    "status": "notice_copied"
+  },
+  {
+    "name": "botocore",
+    "pinned_version": "1.40.76",
+    "used_by": [
+      "worker/requirements.txt"
+    ],
+    "notice_files": [],
+    "status": "not_installed_in_service_qualification_environment"
+  },
+  {
+    "name": "botocore",
+    "pinned_version": "1.43.118",
+    "used_by": [
+      "service/requirements.lock"
+    ],
+    "notice_files": [
+      "LICENSES/python/botocore@1.43.118/LICENSE.txt",
+      "LICENSES/python/botocore@1.43.118/NOTICE"
+    ],
+    "status": "notice_copied"
+  },
+  {
+    "name": "certifi",
+    "pinned_version": "2026.10.23",
+    "used_by": [
+      "service/requirements.lock"
+    ],
+    "notice_files": [
+      "LICENSES/python/certifi@2026.10.23/LICENSE"
+    ],
+    "status": "notice_copied"
+  },
+  {
+    "name": "cffi",
+    "pinned_version": "2.1.1",
+    "used_by": [
+      "service/requirements.lock"
+    ],
+    "notice_files": [
+      "LICENSES/python/cffi@2.1.1/LICENSE"
+    ],
+    "status": "notice_copied"
+  },
+  {
+    "name": "charset-normalizer",
+    "pinned_version": "3.5.2",
+    "used_by": [
+      "service/requirements.lock"
+    ],
+    "notice_files": [
+      "LICENSES/python/charset-normalizer@3.5.2/LICENSE"
+    ],
+    "status": "notice_copied"
+  },
+  {
+    "name": "click",
+    "pinned_version": "8.5.0",
+    "used_by": [
+      "service/requirements.lock"
+    ],
+    "notice_files": [
+      "LICENSES/python/click@8.5.0/LICENSE.txt"
+    ],
+    "status": "notice_copied"
+  },
+  {
+    "name": "cryptography",
+    "pinned_version": "50.0.0",
+    "used_by": [
+      "service/requirements.lock"
+    ],
+    "notice_files": [
+      "LICENSES/python/cryptography@50.0.0/LICENSE",
+      "LICENSES/python/cryptography@50.0.0/LICENSE.APACHE",
+      "LICENSES/python/cryptography@50.0.0/LICENSE.BSD"
+    ],
+    "status": "notice_copied"
+  },
+  {
+    "name": "durationpy",
+    "pinned_version": "0.11",
+    "used_by": [
+      "service/requirements.lock"
+    ],
+    "notice_files": [
+      "LICENSES/python/durationpy@0.11/LICENSE"
+    ],
+    "status": "notice_copied"
+  },
+  {
+    "name": "flask",
+    "pinned_version": "3.1.3",
+    "used_by": [
+      "service/requirements.lock"
+    ],
+    "notice_files": [
+      "LICENSES/python/flask@3.1.3/LICENSE.txt"
+    ],
+    "status": "notice_copied"
+  },
+  {
+    "name": "gunicorn",
+    "pinned_version": "23.0.0",
+    "used_by": [
+      "service/requirements.lock"
+    ],
+    "notice_files": [
+      "LICENSES/python/gunicorn@23.0.0/LICENSE"
+    ],
+    "status": "notice_copied"
+  },
+  {
+    "name": "idna",
+    "pinned_version": "3.20",
+    "used_by": [
+      "service/requirements.lock"
+    ],
+    "notice_files": [
+      "LICENSES/python/idna@3.20/LICENSE.md"
+    ],
+    "status": "notice_copied"
+  },
+  {
+    "name": "iniconfig",
+    "pinned_version": "2.3.1",
+    "used_by": [
+      "service/requirements.lock"
+    ],
+    "notice_files": [
+      "LICENSES/python/iniconfig@2.3.1/LICENSE"
+    ],
+    "status": "notice_copied"
+  },
+  {
+    "name": "itsdangerous",
+    "pinned_version": "2.2.0",
+    "used_by": [
+      "service/requirements.lock"
+    ],
+    "notice_files": [
+      "LICENSES/python/itsdangerous@2.2.0/LICENSE.txt"
+    ],
+    "status": "notice_copied"
+  },
+  {
+    "name": "jinja2",
+    "pinned_version": "3.1.6",
+    "used_by": [
+      "service/requirements.lock"
+    ],
+    "notice_files": [
+      "LICENSES/python/jinja2@3.1.6/LICENSE.txt"
+    ],
+    "status": "notice_copied"
+  },
+  {
+    "name": "jmespath",
+    "pinned_version": "1.1.0",
+    "used_by": [
+      "service/requirements.lock",
+      "worker/requirements.txt"
+    ],
+    "notice_files": [
+      "LICENSES/python/jmespath@1.1.0/LICENSE"
+    ],
+    "status": "notice_copied"
+  },
+  {
+    "name": "joserfc",
+    "pinned_version": "1.7.7",
+    "used_by": [
+      "service/requirements.lock"
+    ],
+    "notice_files": [
+      "LICENSES/python/joserfc@1.7.7/LICENSE"
+    ],
+    "status": "notice_copied"
+  },
+  {
+    "name": "kubernetes",
+    "pinned_version": "35.0.0",
+    "used_by": [
+      "service/requirements.lock"
+    ],
+    "notice_files": [
+      "LICENSES/python/kubernetes@35.0.0/LICENSE"
+    ],
+    "status": "notice_copied"
+  },
+  {
+    "name": "markupsafe",
+    "pinned_version": "3.0.4",
+    "used_by": [
+      "service/requirements.lock"
+    ],
+    "notice_files": [
+      "LICENSES/python/markupsafe@3.0.4/LICENSE.txt"
+    ],
+    "status": "notice_copied"
+  },
+  {
+    "name": "oauthlib",
+    "pinned_version": "4.0.0",
+    "used_by": [
+      "service/requirements.lock"
+    ],
+    "notice_files": [
+      "LICENSES/python/oauthlib@4.0.0/LICENSE"
+    ],
+    "status": "notice_copied"
+  },
+  {
+    "name": "packaging",
+    "pinned_version": "26.3",
+    "used_by": [
+      "service/requirements.lock"
+    ],
+    "notice_files": [
+      "LICENSES/python/packaging@26.3/LICENSE",
+      "LICENSES/python/packaging@26.3/LICENSE.APACHE",
+      "LICENSES/python/packaging@26.3/LICENSE.BSD"
+    ],
+    "status": "notice_copied"
+  },
+  {
+    "name": "pillow",
+    "pinned_version": "13.0.0",
+    "used_by": [
+      "service/requirements.lock"
+    ],
+    "notice_files": [
+      "LICENSES/python/pillow@13.0.0/LICENSE"
+    ],
+    "status": "notice_copied"
+  },
+  {
+    "name": "pluggy",
+    "pinned_version": "1.7.0",
+    "used_by": [
+      "service/requirements.lock"
+    ],
+    "notice_files": [
+      "LICENSES/python/pluggy@1.7.0/LICENSE"
+    ],
+    "status": "notice_copied"
+  },
+  {
+    "name": "psycopg",
+    "pinned_version": "3.3.6",
+    "used_by": [
+      "service/requirements.lock"
+    ],
+    "notice_files": [
+      "LICENSES/python/psycopg@3.3.6/LICENSE.txt"
+    ],
+    "status": "notice_copied"
+  },
+  {
+    "name": "psycopg-binary",
+    "pinned_version": "3.3.6",
+    "used_by": [
+      "service/requirements.lock"
+    ],
+    "notice_files": [
+      "LICENSES/python/psycopg-binary@3.3.6/LICENSE.txt"
+    ],
+    "status": "notice_copied"
+  },
+  {
+    "name": "pycparser",
+    "pinned_version": "3.12",
+    "used_by": [
+      "service/requirements.lock"
+    ],
+    "notice_files": [
+      "LICENSES/python/pycparser@3.12/LICENSE"
+    ],
+    "status": "notice_copied"
+  },
+  {
+    "name": "pygments",
+    "pinned_version": "2.21.0",
+    "used_by": [
+      "service/requirements.lock"
+    ],
+    "notice_files": [
+      "LICENSES/python/pygments@2.21.0/LICENSE"
+    ],
+    "status": "notice_copied"
+  },
+  {
+    "name": "pytest",
+    "pinned_version": "9.1.1",
+    "used_by": [
+      "service/requirements.lock"
+    ],
+    "notice_files": [
+      "LICENSES/python/pytest@9.1.1/LICENSE"
+    ],
+    "status": "notice_copied"
+  },
+  {
+    "name": "python-dateutil",
+    "pinned_version": "2.9.0.post0",
+    "used_by": [
+      "service/requirements.lock",
+      "worker/requirements.txt"
+    ],
+    "notice_files": [
+      "LICENSES/python/python-dateutil@2.9.0.post0/LICENSE"
+    ],
+    "status": "notice_copied"
+  },
+  {
+    "name": "pyyaml",
+    "pinned_version": "6.0.3",
+    "used_by": [
+      "service/requirements.lock"
+    ],
+    "notice_files": [
+      "LICENSES/python/pyyaml@6.0.3/LICENSE"
+    ],
+    "status": "notice_copied"
+  },
+  {
+    "name": "qrcode",
+    "pinned_version": "8.2",
+    "used_by": [
+      "service/requirements.lock"
+    ],
+    "notice_files": [
+      "LICENSES/python/qrcode@8.2/LICENSE"
+    ],
+    "status": "notice_copied"
+  },
+  {
+    "name": "requests",
+    "pinned_version": "2.34.2",
+    "used_by": [
+      "service/requirements.lock"
+    ],
+    "notice_files": [
+      "LICENSES/python/requests@2.34.2/LICENSE",
+      "LICENSES/python/requests@2.34.2/NOTICE"
+    ],
+    "status": "notice_copied"
+  },
+  {
+    "name": "requests-oauthlib",
+    "pinned_version": "2.0.0",
+    "used_by": [
+      "service/requirements.lock"
+    ],
+    "notice_files": [
+      "LICENSES/python/requests-oauthlib@2.0.0/LICENSE"
+    ],
+    "status": "notice_copied"
+  },
+  {
+    "name": "s3transfer",
+    "pinned_version": "0.14.0",
+    "used_by": [
+      "worker/requirements.txt"
+    ],
+    "notice_files": [],
+    "status": "not_installed_in_service_qualification_environment"
+  },
+  {
+    "name": "s3transfer",
+    "pinned_version": "0.19.3",
+    "used_by": [
+      "service/requirements.lock"
+    ],
+    "notice_files": [
+      "LICENSES/python/s3transfer@0.19.3/LICENSE.txt",
+      "LICENSES/python/s3transfer@0.19.3/NOTICE.txt"
+    ],
+    "status": "notice_copied"
+  },
+  {
+    "name": "six",
+    "pinned_version": "1.17.0",
+    "used_by": [
+      "service/requirements.lock",
+      "worker/requirements.txt"
+    ],
+    "notice_files": [
+      "LICENSES/python/six@1.17.0/LICENSE"
+    ],
+    "status": "notice_copied"
+  },
+  {
+    "name": "sqlalchemy",
+    "pinned_version": "2.1.6",
+    "used_by": [
+      "service/requirements.lock"
+    ],
+    "notice_files": [
+      "LICENSES/python/sqlalchemy@2.1.6/LICENSE"
+    ],
+    "status": "notice_copied"
+  },
+  {
+    "name": "typing_extensions",
+    "pinned_version": "4.16.0",
+    "used_by": [
+      "service/requirements.lock"
+    ],
+    "notice_files": [
+      "LICENSES/python/typing_extensions@4.16.0/LICENSE"
+    ],
+    "status": "notice_copied"
+  },
+  {
+    "name": "urllib3",
+    "pinned_version": "2.8.0",
+    "used_by": [
+      "service/requirements.lock",
+      "worker/requirements.txt"
+    ],
+    "notice_files": [
+      "LICENSES/python/urllib3@2.8.0/LICENSE.txt"
+    ],
+    "status": "notice_copied"
+  },
+  {
+    "name": "websocket-client",
+    "pinned_version": "1.9.2",
+    "used_by": [
+      "service/requirements.lock"
+    ],
+    "notice_files": [
+      "LICENSES/python/websocket-client@1.9.2/LICENSE"
+    ],
+    "status": "notice_copied"
+  },
+  {
+    "name": "werkzeug",
+    "pinned_version": "3.1.9",
+    "used_by": [
+      "service/requirements.lock"
+    ],
+    "notice_files": [
+      "LICENSES/python/werkzeug@3.1.9/LICENSE.txt"
+    ],
+    "status": "notice_copied"
+  }
+]

@@ -1,0 +1,54 @@
+name: Validate public source
+on:
+  push:
+  pull_request:
+permissions:
+  contents: read
+jobs:
+  test:
+    runs-on: ubuntu-24.04
+    timeout-minutes: 25
+    services:
+      postgres:
+        image: postgres:17-alpine
+        env:
+          POSTGRES_DB: whatsapp_mcp_ci
+          POSTGRES_USER: whatsapp_ci
+          POSTGRES_PASSWORD: disposable-ci-only
+        ports: ['5432:5432']
+        options: >-
+          --health-cmd "pg_isready -U whatsapp_ci -d whatsapp_mcp_ci"
+          --health-interval 5s --health-timeout 5s --health-retries 10
+    steps:
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1
+        with:
+          persist-credentials: false
+      - uses: astral-sh/setup-uv@c18668ad3cf93ea998bef934396af7bb5c839dc7
+        with:
+          version: '0.12.13'
+          python-version: '3.15'
+      - uses: azure/setup-helm@1a275c3b69536ee54be43f2070a358922e12c8d4
+        with:
+          version: v4.3.0
+      - name: Service and chart tests
+        run: |
+          uv venv .venv-ci
+          uv pip install --python .venv-ci/bin/python -r service/requirements.txt
+          PYTHONPATH=service .venv-ci/bin/python -m pytest service/tests -q
+          .venv-ci/bin/python -m pytest charts/whatsapp-mcp/tests -q
+          helm lint --strict charts/whatsapp-mcp
+      - name: Disposable PostgreSQL tests
+        env:
+          CI_DATABASE_URL: postgresql+psycopg://whatsapp_ci:disposable-ci-only@127.0.0.1:5432/whatsapp_mcp_ci
+        run: PYTHONPATH=service .venv-ci/bin/python -m pytest service/tests/test_registration_postgres.py service/tests/test_archive_postgres.py service/tests/test_message_updates_postgres.py service/tests/test_contacts_postgres.py service/tests/test_health_postgres.py -q
+      - name: Worker tests
+        run: |
+          uv venv --python 3.12 .venv-worker
+          uv pip install --python .venv-worker/bin/python -r worker/requirements.txt
+          .venv-worker/bin/python -m unittest discover -s worker/tests -v
+      - name: Bridge tests and vet
+        run: |
+          docker run --rm --network host -v "$PWD/bridge:/source:ro" \
+            -e TEST_POSTGRES_URL='postgres://whatsapp_ci:disposable-ci-only@127.0.0.1:5432/postgres?sslmode=disable' \
+            golang:1.27.3-alpine sh -ec \
+            'mkdir /src; cp -R /source/. /src/; cd /src; CGO_ENABLED=0 go test ./...; CGO_ENABLED=0 go vet ./...'

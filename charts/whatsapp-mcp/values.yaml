@@ -1,0 +1,137 @@
+nameOverride: ""
+fullnameOverride: ""
+imagePullSecrets: []
+imageRegistry: ""
+# Release packages require every workload image to use an immutable digest.
+requireImageDigest: false
+app:
+  # Optional pod placement; schema bootstrap inherits these settings.
+  nodeSelector: {}
+  tolerations: []
+  affinity: {}
+  image: {repository: whatsapp-mcp-app, tag: dev, digest: "", pullPolicy: IfNotPresent}
+  replicas: 1
+  baseUrl: https://whatsapp.example.invalid
+  adminEmail: owner@example.invalid
+  existingSecret: whatsapp-mcp-app
+  resources:
+    requests: {cpu: 100m, memory: 128Mi}
+    limits: {cpu: 500m, memory: 512Mi}
+  oauthClients: []
+  oauthDynamicRegistration: true
+  loginProxy:
+    mode: ""
+    secretName: "" # Empty uses app.existingSecret, for signed mode only.
+    secretKey: LOGIN_PROXY_SECRET
+  extraEnv: []
+# Optional application guard for an origin reached through Cloudflare.
+# Supply exact app-facing proxy peers in app.extraEnv TRUSTED_PROXY_CIDRS.
+cloudflareProxy:
+  enabled: false
+  originSecretName: whatsapp-mcp-cloudflare-origin
+  originSecretKey: CLOUDFLARE_ORIGIN_SECRET
+# Optional isolated webhook sender. Provision its dedicated Secret before enabling.
+webhookRelay:
+  enabled: false
+  existingSecret: whatsapp-mcp-webhook-relay
+  secretKey: WEBHOOK_RELAY_TOKEN
+  maxRequestsPerMinute: 60
+  resources:
+    requests: {cpu: 100m, memory: 128Mi}
+    limits: {cpu: 500m, memory: 512Mi}
+controller:
+  nodeSelector: {}
+  tolerations: []
+  affinity: {}
+  resources:
+    requests: {cpu: 100m, memory: 384Mi}
+    limits: {cpu: 250m, memory: 512Mi}
+# Preprovisioned slots become visible after the owner adds a profile in the UI.
+# Omit profileSlot (or set false) to retain an existing account's assignment.
+accounts:
+  - id: profile1
+    label: Profile 1
+    profileSlot: true
+    sessionSecretName: whatsapp-mcp-session-profile1
+  - id: profile2
+    label: Profile 2
+    profileSlot: true
+    sessionSecretName: whatsapp-mcp-session-profile2
+bridge:
+  nodeSelector: {}
+  tolerations: []
+  affinity: {}
+  # Own-phone protocol recovery only; never sends a chat message.
+  mediaRecovery:
+    enabled: true
+    maxAttempts: 1
+    timeoutSeconds: 120
+    minIntervalSeconds: 30
+  # Exhausted download attempts retain the item for operator review.
+  mediaDownloadMaxAttempts: 8
+  image: {repository: whatsapp-mcp-bridge, tag: dev, digest: "", pullPolicy: IfNotPresent}
+  resources:
+    requests: {cpu: 50m, memory: 96Mi}
+    limits: {cpu: 250m, memory: 256Mi}
+  spool:
+    size: 2Gi
+    storageClass: ""
+storage:
+  backend: s3
+  # Disk archive is shared by bridge writers, API readers and optional workers.
+  # The selected storage class must actually support these access modes.
+  disk:
+    existingClaim: ""
+    storageClass: ""
+    size: 10Gi
+    accessModes: [ReadWriteMany]
+s3:
+  # Empty uses the AWS regional endpoint. Set explicitly for MinIO or Spaces.
+  endpointUrl: ""
+  publicEndpointUrl: ""
+  bucket: whatsapp-mcp
+  region: us-east-1
+  addressingStyle: path
+worker:
+  enabled: true
+  image: {repository: whatsapp-mcp-worker, tag: dev, digest: "", pullPolicy: IfNotPresent}
+  # Optional Job pod placement; keep actual pool labels/taints in infrastructure values.
+  nodeSelector: {}
+  tolerations: []
+  affinity: {}
+  podAnnotations: {}
+  threads: 1
+  audioChunkSeconds: 30
+  maxAudioSeconds: 1800
+  maxMediaBytes: 104857600
+  backoffLimit: 1
+  ttlSecondsAfterFinished: 86400
+  resources:
+    requests: {cpu: 1000m, memory: 3Gi}
+    limits: {cpu: 1500m, memory: 3Gi}
+  modelCache:
+    existingClaim: ""
+    size: 2Gi
+    storageClass: ""
+ingress:
+  enabled: false
+  className: nginx
+  host: whatsapp.example.invalid
+  annotations: {}
+  tlsSecretName: ""
+httpRoute:
+  enabled: false
+  parentRefs: []
+  hostnames: []
+# Optional external PostgreSQL CA, mounted in every database client.
+databaseCA:
+  existingConfigMap: ""
+  key: ca.crt
+ciliumNetworkPolicy:
+  enabled: false
+networkPolicy:
+  enabled: true
+  # Native model download and configured external PostgreSQL/S3 require egress.
+  # Public ingress reaches the app only; bridge/internal URLs remain ClusterIP.
+  ingressNamespaceSelector:
+    matchLabels: {kubernetes.io/metadata.name: ingress-nginx}

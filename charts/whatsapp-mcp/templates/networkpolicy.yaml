@@ -1,0 +1,42 @@
+{{- if .Values.networkPolicy.enabled }}
+apiVersion: networking.k8s.io/v1
+kind: NetworkPolicy
+metadata:
+  name: {{ include "wa.fullname" . }}-private-services
+spec:
+  podSelector:
+    matchLabels: {app.kubernetes.io/instance: {{ .Release.Name }}}
+    {{- if .Values.webhookRelay.enabled }}
+    matchExpressions: [{key: component, operator: NotIn, values: [webhook-relay]}]
+    {{- end }}
+  policyTypes: [Ingress]
+  ingress:
+    - from:
+        - podSelector:
+            matchLabels: {app.kubernetes.io/instance: {{ .Release.Name }}}
+            {{- if .Values.webhookRelay.enabled }}
+            matchExpressions: [{key: component, operator: NotIn, values: [webhook-relay]}]
+            {{- end }}
+    - from:
+        - namespaceSelector: {{ toYaml .Values.networkPolicy.ingressNamespaceSelector | nindent 12 }}
+      ports: [{protocol: TCP, port: 8000}]
+{{- if .Values.webhookRelay.enabled }}
+---
+apiVersion: networking.k8s.io/v1
+kind: NetworkPolicy
+metadata:
+  name: {{ include "wa.fullname" . }}-webhook-relay
+spec:
+  podSelector:
+    matchLabels: {app.kubernetes.io/instance: {{ .Release.Name }}, component: webhook-relay}
+  policyTypes: [Ingress]
+  ingress:
+    - from:
+        - namespaceSelector:
+            matchLabels: {kubernetes.io/metadata.name: {{ .Release.Namespace }}}
+          podSelector:
+            matchLabels: {app.kubernetes.io/instance: {{ .Release.Name }}}
+            matchExpressions: [{key: component, operator: In, values: [app, controller]}]
+      ports: [{protocol: TCP, port: 8001}]
+{{- end }}
+{{- end }}

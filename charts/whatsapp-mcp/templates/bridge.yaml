@@ -1,0 +1,92 @@
+{{- $ids := dict -}}
+{{- range .Values.accounts -}}
+{{- if hasKey $ids .id -}}{{ fail "account IDs must be unique" }}{{- end -}}
+{{- $_ := set $ids .id true -}}
+{{- end -}}
+{{- range .Values.accounts }}
+---
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: {{ include "wa.fullname" $ }}-bridge-{{ .id }}
+  labels: {{ include "wa.labels" $ | nindent 4 }}
+spec:
+  replicas: 1
+  strategy: {type: Recreate}
+  selector:
+    matchLabels: {app.kubernetes.io/instance: {{ $.Release.Name }}, component: bridge, account: {{ .id }}}
+  template:
+    metadata:
+      labels: {app.kubernetes.io/instance: {{ $.Release.Name }}, component: bridge, account: {{ .id }}}
+    spec:
+      {{- with $.Values.bridge.nodeSelector }}
+      nodeSelector: {{ toYaml . | nindent 8 }}
+      {{- end }}
+      {{- with $.Values.bridge.tolerations }}
+      tolerations: {{ toYaml . | nindent 8 }}
+      {{- end }}
+      {{- with $.Values.bridge.affinity }}
+      affinity: {{ toYaml . | nindent 8 }}
+      {{- end }}
+      serviceAccountName: {{ include "wa.fullname" $ }}-bridge
+      automountServiceAccountToken: false
+      {{- with $.Values.imagePullSecrets }}
+      imagePullSecrets: {{ toYaml . | nindent 8 }}
+      {{- end }}
+      securityContext: {{ include "wa.security" $ | nindent 8 }}
+      containers:
+        - name: bridge
+          image: {{ include "wa.image" (dict "root" $ "image" $.Values.bridge.image) | quote }}
+          imagePullPolicy: {{ $.Values.bridge.image.pullPolicy }}
+          securityContext: {{ include "wa.containerSecurity" $ | nindent 12 }}
+          ports: [{name: http, containerPort: 8080}]
+          env: {{ include "wa.sharedEnv" $ | nindent 12 }}
+            - {name: ACCOUNTS_JSON, value: {{ include "wa.accountsJSON" $ | quote }}}
+            - {name: ACCOUNT_ID, value: {{ .id | quote }}}
+            - {name: ACCOUNT_LABEL, value: {{ .label | quote }}}
+            - {name: SPOOL_DIR, value: /spool/records}
+            - {name: MEDIA_RECOVERY_ENABLED, value: {{ $.Values.bridge.mediaRecovery.enabled | quote }}}
+            - {name: MEDIA_RECOVERY_MAX_ATTEMPTS, value: {{ $.Values.bridge.mediaRecovery.maxAttempts | int | quote }}}
+            - {name: MEDIA_RECOVERY_TIMEOUT_SECONDS, value: {{ $.Values.bridge.mediaRecovery.timeoutSeconds | int | quote }}}
+            - {name: MEDIA_RECOVERY_MIN_INTERVAL_SECONDS, value: {{ $.Values.bridge.mediaRecovery.minIntervalSeconds | int | quote }}}
+            - {name: MEDIA_DOWNLOAD_MAX_ATTEMPTS, value: {{ $.Values.bridge.mediaDownloadMaxAttempts | int | quote }}}
+            {{- include "wa.databaseEnv" $ | nindent 12 }}
+            - name: SESSION_DATABASE_URL
+              valueFrom: {secretKeyRef: {name: {{ .sessionSecretName }}, key: SESSION_DATABASE_URL}}
+          resources: {{ toYaml $.Values.bridge.resources | nindent 12 }}
+          readinessProbe: {httpGet: {path: /healthz, port: http}, initialDelaySeconds: 3, periodSeconds: 10}
+          livenessProbe: {httpGet: {path: /healthz, port: http}, initialDelaySeconds: 20, periodSeconds: 20}
+          volumeMounts:
+            {{- if eq $.Values.storage.backend "disk" }}
+            - {name: archive, mountPath: /media, readOnly: false}
+            {{- end }}
+            - {name: spool, mountPath: /spool}
+            - {name: tmp, mountPath: /tmp}
+            {{- include "wa.databaseMount" $ | nindent 12 }}
+      volumes:
+        {{- include "wa.archiveVolume" $ | nindent 8 }}
+        - {name: spool, persistentVolumeClaim: {claimName: {{ include "wa.fullname" $ }}-spool-{{ .id }}}}
+        - {name: tmp, emptyDir: {sizeLimit: 64Mi}}
+        {{- include "wa.databaseVolume" $ | nindent 8 }}
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: {{ include "wa.fullname" $ }}-bridge-{{ .id }}
+spec:
+  type: ClusterIP
+  selector: {app.kubernetes.io/instance: {{ $.Release.Name }}, component: bridge, account: {{ .id }}}
+  ports: [{name: http, port: 8080, targetPort: http}]
+---
+apiVersion: v1
+kind: PersistentVolumeClaim
+metadata:
+  name: {{ include "wa.fullname" $ }}-spool-{{ .id }}
+spec:
+  accessModes: [ReadWriteOnce]
+  {{- if $.Values.bridge.spool.storageClass }}
+  storageClassName: {{ $.Values.bridge.spool.storageClass | quote }}
+  {{- end }}
+  resources:
+    requests: {storage: {{ $.Values.bridge.spool.size }}}
+{{- end }}

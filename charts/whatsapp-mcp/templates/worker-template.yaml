@@ -1,0 +1,72 @@
+{{- define "wa.workerJob" -}}
+apiVersion: batch/v1
+kind: Job
+metadata:
+  name: controller-injects-name
+  namespace: {{ .Release.Namespace }}
+  labels:
+    app.kubernetes.io/instance: {{ .Release.Name }}
+    component: transcription
+spec:
+  backoffLimit: {{ .Values.worker.backoffLimit }}
+  ttlSecondsAfterFinished: {{ .Values.worker.ttlSecondsAfterFinished }}
+  parallelism: 1
+  completions: 1
+  template:
+    metadata:
+      labels: {app.kubernetes.io/instance: {{ .Release.Name }}, component: worker}
+      {{- with .Values.worker.podAnnotations }}
+      annotations: {{ toYaml . | nindent 8 }}
+      {{- end }}
+    spec:
+      serviceAccountName: {{ include "wa.fullname" . }}-worker
+      automountServiceAccountToken: false
+      restartPolicy: Never
+      terminationGracePeriodSeconds: 30
+      {{- with .Values.worker.nodeSelector }}
+      nodeSelector: {{ toYaml . | nindent 8 }}
+      {{- end }}
+      {{- with .Values.worker.tolerations }}
+      tolerations: {{ toYaml . | nindent 8 }}
+      {{- end }}
+      {{- with .Values.worker.affinity }}
+      affinity: {{ toYaml . | nindent 8 }}
+      {{- end }}
+      {{- with .Values.imagePullSecrets }}
+      imagePullSecrets: {{ toYaml . | nindent 8 }}
+      {{- end }}
+      securityContext: {{ include "wa.security" . | nindent 8 }}
+      containers:
+        - name: worker
+          image: {{ include "wa.image" (dict "root" . "image" .Values.worker.image) | quote }}
+          imagePullPolicy: {{ .Values.worker.image.pullPolicy }}
+          securityContext: {{ include "wa.containerSecurity" . | nindent 12 }}
+          env: {{ include "wa.sharedEnv" . | nindent 12 }}
+            - {name: MODEL_PATH, value: /model-cache/Qwen3-ASR-0.6B-Q8_0.gguf}
+            - {name: MODEL_URL, value: "https://huggingface.co/handy-computer/Qwen3-ASR-0.6B-gguf/resolve/7e7c69a577fa2725dfedbe34b5e999336e30a19b/Qwen3-ASR-0.6B-Q8_0.gguf"}
+            - {name: MODEL_SHA256, value: f081b2d5e23bd669d92cc331d722a8a0681943b8e6f34b48996fd5c319b5acd8}
+            - {name: WORKER_THREADS, value: {{ .Values.worker.threads | quote }}}
+            - {name: AUDIO_CHUNK_SECONDS, value: {{ .Values.worker.audioChunkSeconds | quote }}}
+            - {name: MAX_AUDIO_SECONDS, value: {{ .Values.worker.maxAudioSeconds | quote }}}
+            - {name: MAX_MEDIA_BYTES, value: {{ .Values.worker.maxMediaBytes | int64 | quote }}}
+          resources: {{ toYaml .Values.worker.resources | nindent 12 }}
+          volumeMounts:
+            {{- include "wa.archiveReadMount" . | nindent 12 }}
+            - {name: model-cache, mountPath: /model-cache}
+            - {name: tmp, mountPath: /tmp}
+      volumes:
+        {{- include "wa.archiveVolume" . | nindent 8 }}
+        - name: model-cache
+          persistentVolumeClaim:
+            claimName: {{ default (printf "%s-model-cache" (include "wa.fullname" .)) .Values.worker.modelCache.existingClaim }}
+        - {name: tmp, emptyDir: {sizeLimit: 256Mi}}
+{{- end }}
+{{- if .Values.worker.enabled }}
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: {{ include "wa.fullname" . }}-worker-template
+data:
+  job.json: {{ include "wa.workerJob" . | fromYaml | toJson | quote }}
+
+{{- end }}

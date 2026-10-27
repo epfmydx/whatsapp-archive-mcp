@@ -1,0 +1,15 @@
+{% extends "base.html" %}
+{% block title %}Connections{% endblock %}
+{% block content %}
+<div class="page-heading"><div><p class="eyebrow">Your archive</p><h1>Connections</h1><p class="muted">Manage which apps can read your archive.</p></div></div>
+{% if notice %}<p class="notice" role="status">{{ notice }}</p>{% endif %}
+{% if connections %}<ul class="profile-list connection-list">
+{% for row in connections %}<li><div class="connection-details"><h2>{{ row.client.name }}</h2>
+<p class="status">{{ row.status }} · {{ 'Automatically registered' if row.dynamic else 'Manually configured' }}</p>
+<dl class="row-stats"><div><dt>Active access grants</dt><dd>{{ row.grant_count }}</dd></div><div><dt>Active event subscriptions</dt><dd>{{ row.subscription_count }}</dd></div></dl>
+<p class="client-id">Client ID: <code>{{ row.client.client_id }}</code></p>
+{% if row.active %}<ul class="callback-list" aria-label="Callback URLs">{% for uri in row.client.redirect_uris.splitlines() %}<li><code>{{ uri }}</code></li>{% endfor %}</ul>{% endif %}
+</div>{% if row.active %}<form method="post" action="{{ url_for('connection_disconnect', client_id=row.client.client_id) }}"><input type="hidden" name="csrf" value="{{ csrf_token }}"><button class="secondary" aria-label="Disconnect {{ row.client.name }}">Disconnect</button></form>{% endif %}</li>{% endfor %}
+</ul><p class="capacity">Disconnecting stops new access and event delivery. Automatically registered apps must register again. Manually configured apps need an administrator to restore them before reconnecting.</p>
+{% else %}<div class="empty-state"><h2>No connections yet</h2><p>Add this server in your MCP client, then sign in and allow access.</p></div>{% endif %}
+{% endblock %}

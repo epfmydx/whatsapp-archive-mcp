@@ -1,0 +1,34 @@
+{{- if .Values.ingress.enabled }}
+apiVersion: networking.k8s.io/v1
+kind: Ingress
+metadata:
+  name: {{ include "wa.fullname" . }}
+  annotations: {{ toYaml .Values.ingress.annotations | nindent 4 }}
+spec:
+  ingressClassName: {{ .Values.ingress.className }}
+  {{- if .Values.ingress.tlsSecretName }}
+  tls:
+    - hosts: [{{ .Values.ingress.host | quote }}]
+      secretName: {{ .Values.ingress.tlsSecretName }}
+  {{- end }}
+  rules:
+    - host: {{ .Values.ingress.host | quote }}
+      http:
+        paths:
+          {{- range list "/mcp" "/oauth" "/accounts" "/profiles" "/connections" "/static" "/.well-known" }}
+          - path: {{ . }}
+            pathType: Prefix
+            backend:
+              service: {name: {{ include "wa.fullname" $ }}, port: {number: 8000}}
+          {{- end }}
+          {{- range list "/login" "/logout" }}
+          - path: {{ . }}
+            pathType: Exact
+            backend:
+              service: {name: {{ include "wa.fullname" $ }}, port: {number: 8000}}
+          {{- end }}
+          - path: /
+            pathType: Exact
+            backend:
+              service: {name: {{ include "wa.fullname" . }}, port: {number: 8000}}
+{{- end }}

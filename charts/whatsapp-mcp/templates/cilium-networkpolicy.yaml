@@ -1,0 +1,53 @@
+{{- if .Values.ciliumNetworkPolicy.enabled }}
+{{- if .Values.networkPolicy.enabled -}}
+{{- fail "disable networkPolicy.enabled when selecting ciliumNetworkPolicy.enabled" -}}
+{{- end }}
+apiVersion: cilium.io/v2
+kind: CiliumNetworkPolicy
+metadata:
+  name: {{ include "wa.fullname" . }}-private-services
+spec:
+  endpointSelector:
+    matchLabels: {app.kubernetes.io/instance: {{ .Release.Name }}}
+    {{- if .Values.webhookRelay.enabled }}
+    matchExpressions: [{key: component, operator: NotIn, values: [webhook-relay]}]
+    {{- end }}
+  ingress:
+    - fromEndpoints:
+        - matchLabels:
+            app.kubernetes.io/instance: {{ .Release.Name }}
+            k8s:io.kubernetes.pod.namespace: {{ .Release.Namespace }}
+          {{- if .Values.webhookRelay.enabled }}
+          matchExpressions: [{key: component, operator: NotIn, values: [webhook-relay]}]
+          {{- end }}
+---
+apiVersion: cilium.io/v2
+kind: CiliumNetworkPolicy
+metadata:
+  name: {{ include "wa.fullname" . }}-from-gateway
+spec:
+  endpointSelector:
+    matchLabels: {app.kubernetes.io/instance: {{ .Release.Name }}, component: app}
+  ingress:
+    - fromEntities: [ingress]
+      toPorts:
+        - ports: [{port: "8000", protocol: TCP}]
+{{- if .Values.webhookRelay.enabled }}
+---
+apiVersion: cilium.io/v2
+kind: CiliumNetworkPolicy
+metadata:
+  name: {{ include "wa.fullname" . }}-webhook-relay
+spec:
+  endpointSelector:
+    matchLabels: {app.kubernetes.io/instance: {{ .Release.Name }}, component: webhook-relay}
+  ingress:
+    - fromEndpoints:
+        - matchLabels:
+            app.kubernetes.io/instance: {{ .Release.Name }}
+            k8s:io.kubernetes.pod.namespace: {{ .Release.Namespace }}
+          matchExpressions: [{key: component, operator: In, values: [app, controller]}]
+      toPorts:
+        - ports: [{port: "8001", protocol: TCP}]
+{{- end }}
+{{- end }}

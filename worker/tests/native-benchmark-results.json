@@ -1,0 +1,72 @@
+[
+  {
+    "results": [
+      {
+        "fixture": "public_jfk",
+        "audio_seconds": 11.0,
+        "elapsed_seconds": 5.556,
+        "text": "And so, my fellow Americans, ask not what your country can do for you; ask what you can do for your country.",
+        "segments": [],
+        "language": null,
+        "native_children_peak_rss_kib": 1319684
+      },
+      {
+        "fixture": "synthetic_3x_jfk_repeated",
+        "audio_seconds": 33.0,
+        "elapsed_seconds": 18.085,
+        "text": "And so, my fellow Americans, ask not what your country can do for you, ask what you can do for your country. And so, my fellow Americans, ask not what your country can do for you, ask what you can do for your country. And so, my fellow Americans, ask not what your country can do for you.\nAsk what you can do for your country.",
+        "segments": [],
+        "language": null,
+        "native_children_peak_rss_kib": 1409020
+      }
+    ],
+    "cgroup_memory_peak_bytes_including_file_cache": "1459744768",
+    "cgroup_memory_events": "low 0\nhigh 0\nmax 0\noom 0\noom_kill 0\noom_group_kill 0\nsock_throttled 0\n",
+    "notes": "Public speech and synthetic repeated speech only. Single Linux arm64 CPU run, no WER evaluation or noisy multilingual acceptance. RSS is max across child processes including ffmpeg. Cgroup peak includes file cache.",
+    "memory_limit": "3Gi",
+    "memory_swap_limit": "3Gi",
+    "cpus": 1.5,
+    "platform": "linux/arm64",
+    "worker_threads": 1,
+    "runtime_revision": "8facde6fcd8fb9caa585a5788ab450df6e8ec7db",
+    "model_sha256": "f081b2d5e23bd669d92cc331d722a8a0681943b8e6f34b48996fd5c319b5acd8",
+    "measured_date": "2026-10-26",
+    "sample_source": "https://github.com/handy-computer/transcribe.cpp/blob/8facde6fcd8fb9caa585a5788ab450df6e8ec7db/samples/jfk.wav"
+  },
+  {
+    "results": [
+      {
+        "fixture": "public_jfk",
+        "audio_seconds": 11.0,
+        "elapsed_seconds": 5.761,
+        "error": null,
+        "text": "And so, my fellow Americans, ask not what your country can do for you; ask what you can do for your country.",
+        "segments": [],
+        "language": null,
+        "native_children_peak_rss_kib": 1315440
+      },
+      {
+        "fixture": "synthetic_3x_jfk_repeated",
+        "audio_seconds": 33.0,
+        "elapsed_seconds": 17.04,
+        "error": null,
+        "text": "And so, my fellow Americans, ask not what your country can do for you, ask what you can do for your country. And so, my fellow Americans, ask not what your country can do for you, ask what you can do for your country. And so, my fellow Americans, ask not what your country can do for you.\nAsk what you can do for your country.",
+        "segments": [],
+        "language": null,
+        "native_children_peak_rss_kib": 1410964
+      }
+    ],
+    "cgroup_memory_peak_bytes_including_file_cache": "1459933184",
+    "cgroup_memory_events": "low 0\nhigh 0\nmax 0\noom 0\noom_kill 0\noom_group_kill 0\nsock_throttled 0\n",
+    "notes": "Public speech and synthetic repeated speech only. Single Linux arm64 CPU run, no WER evaluation or noisy multilingual acceptance. RSS is max across child processes including ffmpeg. Cgroup peak includes file cache.",
+    "memory_limit": "2Gi",
+    "memory_swap_limit": "2Gi",
+    "cpus": 1.5,
+    "platform": "linux/arm64",
+    "worker_threads": 1,
+    "runtime_revision": "8facde6fcd8fb9caa585a5788ab450df6e8ec7db",
+    "model_sha256": "f081b2d5e23bd669d92cc331d722a8a0681943b8e6f34b48996fd5c319b5acd8",
+    "measured_date": "2026-10-26",
+    "sample_source": "https://github.com/handy-computer/transcribe.cpp/blob/8facde6fcd8fb9caa585a5788ab450df6e8ec7db/samples/jfk.wav"
+  }
+]

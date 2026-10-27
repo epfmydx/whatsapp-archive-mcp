@@ -1,0 +1,25 @@
+{{- range $component := list "app" "worker" "controller" "bridge" }}
+---
+apiVersion: v1
+kind: ServiceAccount
+metadata:
+  name: {{ include "wa.fullname" $ }}-{{ $component }}
+automountServiceAccountToken: {{ eq $component "controller" }}
+{{- end }}
+---
+apiVersion: rbac.authorization.k8s.io/v1
+kind: Role
+metadata:
+  name: {{ include "wa.fullname" . }}-controller
+rules:
+  - apiGroups: [batch]
+    resources: [jobs]
+    verbs: [create, get, patch]
+---
+apiVersion: rbac.authorization.k8s.io/v1
+kind: RoleBinding
+metadata:
+  name: {{ include "wa.fullname" . }}-controller
+subjects:
+  - {kind: ServiceAccount, name: {{ include "wa.fullname" . }}-controller, namespace: {{ .Release.Namespace }}}
+roleRef: {apiGroup: rbac.authorization.k8s.io, kind: Role, name: {{ include "wa.fullname" . }}-controller}

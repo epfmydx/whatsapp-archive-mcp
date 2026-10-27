@@ -1,0 +1,18 @@
+{
+  "runtime": "handy-computer/transcribe.cpp",
+  "runtime_revision": "8facde6fcd8fb9caa585a5788ab450df6e8ec7db",
+  "runtime_source_sha256": "69d5f0f10ebaf4ea3d91b10d64abf275971398bb0c64c1798e34b4632d62be73",
+  "runtime_license": "MIT",
+  "ggml_revision": "d7cb574130e6f01ad25b3289685489200febcd74",
+  "model": "Qwen3-ASR-0.6B-Q8_0.gguf",
+  "model_repository": "handy-computer/Qwen3-ASR-0.6B-gguf",
+  "model_revision": "7e7c69a577fa2725dfedbe34b5e999336e30a19b",
+  "model_url": "https://huggingface.co/handy-computer/Qwen3-ASR-0.6B-gguf/resolve/7e7c69a577fa2725dfedbe34b5e999336e30a19b/Qwen3-ASR-0.6B-Q8_0.gguf",
+  "model_sha256": "f081b2d5e23bd669d92cc331d722a8a0681943b8e6f34b48996fd5c319b5acd8",
+  "model_size": 850423456,
+  "model_license": "Apache-2.0",
+  "upstream_model": "Qwen/Qwen3-ASR-0.6B",
+  "upstream_model_revision": "5eb1441",
+  "capabilities": {"cpu": true, "timestamps": false, "streaming": false, "diarization": false, "translation": false},
+  "limits": "Runtime batch JSONL lacks detected language; callback language is null. No forced aligner; segments are empty. 30 second independent audio chunks can cut words and lose cross-chunk context. 1500m CPU / 3Gi is a trial cap, not verified fit."
+}

@@ -1,0 +1,61 @@
+{{- if .Values.webhookRelay.enabled }}
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: {{ include "wa.fullname" . }}-webhook-relay
+  labels: {{ include "wa.labels" . | nindent 4 }}
+spec:
+  replicas: 1
+  selector:
+    matchLabels: {app.kubernetes.io/instance: {{ .Release.Name }}, component: webhook-relay}
+  template:
+    metadata:
+      labels: {app.kubernetes.io/instance: {{ .Release.Name }}, component: webhook-relay}
+    spec:
+      {{- with .Values.app.nodeSelector }}
+      nodeSelector: {{ toYaml . | nindent 8 }}
+      {{- end }}
+      {{- with .Values.app.tolerations }}
+      tolerations: {{ toYaml . | nindent 8 }}
+      {{- end }}
+      {{- with .Values.app.affinity }}
+      affinity: {{ toYaml . | nindent 8 }}
+      {{- end }}
+      serviceAccountName: {{ include "wa.fullname" . }}-webhook-relay
+      automountServiceAccountToken: false
+      {{- with .Values.imagePullSecrets }}
+      imagePullSecrets: {{ toYaml . | nindent 8 }}
+      {{- end }}
+      securityContext: {{ include "wa.security" . | nindent 8 }}
+      containers:
+        - name: webhook-relay
+          image: {{ include "wa.image" (dict "root" . "image" .Values.app.image) | quote }}
+          imagePullPolicy: {{ .Values.app.image.pullPolicy }}
+          command: [python, -m, app.relay]
+          ports: [{name: http, containerPort: 8001}]
+          securityContext: {{ include "wa.containerSecurity" . | nindent 12 }}
+          env: {{ include "wa.webhookRelayTokenEnv" . | nindent 12 }}
+            - {name: WEBHOOK_RELAY_MAX_REQUESTS_PER_MINUTE, value: {{ .Values.webhookRelay.maxRequestsPerMinute | toString | quote }}}
+          resources: {{ toYaml .Values.webhookRelay.resources | nindent 12 }}
+          readinessProbe: {httpGet: {path: /healthz, port: http}, initialDelaySeconds: 3, periodSeconds: 10}
+          livenessProbe: {httpGet: {path: /healthz, port: http}, initialDelaySeconds: 20, periodSeconds: 20}
+          volumeMounts:
+            - {name: tmp, mountPath: /tmp}
+      volumes:
+        - {name: tmp, emptyDir: {sizeLimit: 64Mi}}
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: {{ include "wa.fullname" . }}-webhook-relay
+spec:
+  type: ClusterIP
+  selector: {app.kubernetes.io/instance: {{ .Release.Name }}, component: webhook-relay}
+  ports: [{name: http, port: 8001, targetPort: http}]
+---
+apiVersion: v1
+kind: ServiceAccount
+metadata:
+  name: {{ include "wa.fullname" . }}-webhook-relay
+automountServiceAccountToken: false
+{{- end }}

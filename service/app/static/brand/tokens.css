@@ -1,0 +1,45 @@
+/* EPFMy DigitalX Services / Two states / UI proposal v0.1, 2026-09-27 */
+:root {
+  --dx-ink: #111111;
+  --dx-paper: #ffffff;
+  --dx-muted: #565656;
+  --dx-control-border: #767676;
+  --dx-rule: #d8d8d8;
+  --dx-soft: #f5f5f5;
+  --dx-disabled: #e8e8e8;
+  --dx-inverse-muted: #bcbcbc;
+  --dx-font: Consolas, Menlo, "Liberation Mono", "Courier New", monospace;
+  --dx-text-xs: .75rem; /* 12px: metadata only */
+  --dx-text-sm: .875rem; /* 14px: labels/helper text */
+  --dx-text-base: 1rem; /* 16px: body/inputs */
+  --dx-text-lg: 1.125rem; /* 18px: introductory copy */
+  --dx-text-xl: 1.25rem; /* 20px: component headings */
+  --dx-heading-sm: 1.5rem; /* 24px */
+  --dx-heading-md: 2rem; /* 32px */
+  --dx-heading-lg: 2.5rem; /* 40px */
+  --dx-heading-xl: 3.5rem; /* 56px */
+  --dx-display: clamp(2.5rem, 6vw, 6rem); /* 40–96px */
+  --dx-leading-body: 1.6;
+  --dx-leading-heading: 1.15;
+  --dx-weight-body: 400;
+  --dx-weight-heading: 700;
+  --dx-space-1: .25rem;
+  --dx-space-2: .5rem;
+  --dx-space-3: .75rem;
+  --dx-space-4: 1rem;
+  --dx-space-6: 1.5rem;
+  --dx-space-8: 2rem;
+  --dx-space-12: 3rem;
+  --dx-space-16: 4rem;
+  --dx-space-24: 6rem;
+  --dx-control-height: 3rem;
+  --dx-control-compact: 2.5rem;
+  --dx-control-large: 3.5rem;
+  --dx-radius: 0;
+  --dx-border-width: 1px;
+  --dx-focus-width: 2px;
+  --dx-focus-offset: 3px;
+  --dx-duration: 150ms;
+  --dx-content-width: 82rem;
+  --dx-reading-width: 65ch;
+}

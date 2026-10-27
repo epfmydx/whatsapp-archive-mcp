@@ -1,0 +1,27 @@
+{{- if and .Values.ingress.enabled .Values.httpRoute.enabled -}}
+{{- fail "enable only one of ingress.enabled and httpRoute.enabled" -}}
+{{- end -}}
+{{- if .Values.httpRoute.enabled }}
+{{- if or (empty .Values.httpRoute.parentRefs) (empty .Values.httpRoute.hostnames) -}}
+{{- fail "HTTPRoute requires parentRefs and hostnames" -}}
+{{- end }}
+apiVersion: gateway.networking.k8s.io/v1
+kind: HTTPRoute
+metadata:
+  name: {{ include "wa.fullname" . }}
+  labels: {{ include "wa.labels" . | nindent 4 }}
+spec:
+  parentRefs: {{ toYaml .Values.httpRoute.parentRefs | nindent 4 }}
+  hostnames: {{ toYaml .Values.httpRoute.hostnames | nindent 4 }}
+  rules:
+    - matches:
+        {{- range list "/mcp" "/oauth" "/accounts" "/profiles" "/connections" "/static" "/.well-known" }}
+        - path: {type: PathPrefix, value: {{ . | quote }}}
+        {{- end }}
+        {{- range list "/" "/login" "/logout" }}
+        - path: {type: Exact, value: {{ . | quote }}}
+        {{- end }}
+      backendRefs:
+        - name: {{ include "wa.fullname" . }}
+          port: 8000
+{{- end }}

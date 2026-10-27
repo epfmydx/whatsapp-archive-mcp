@@ -1,0 +1,6 @@
+apiVersion: v2
+name: whatsapp-mcp
+description: Private read-only WhatsApp MCP service with on-demand native CPU transcription
+version: 0.7.0
+appVersion: "0.7.0"
+type: application

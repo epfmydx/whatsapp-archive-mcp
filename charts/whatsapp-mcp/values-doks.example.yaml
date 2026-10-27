@@ -1,0 +1,66 @@
+# Copy to ignored values.production.local.yaml. Replace .invalid hosts and
+# verify Secret names, storage classes, Gateway listener and actual proxy peers.
+# Do not override release image fields: OCI charts embed all three digests.
+fullnameOverride: whatsapp-mcp
+imagePullSecrets:
+  - name: registry-example
+app:
+  baseUrl: https://whatsapp.example.invalid
+  existingSecret: whatsapp-mcp-app
+  oauthClients: [] # Add each client's exact ID and redirect URI before connecting.
+  loginProxy:
+    mode: envoy # Requires verified Envoy client-IP header overwrite and peers.
+  extraEnv:
+    # Comma-separated exact app-facing Cilium Envoy IPs/CIDRs. Empty trusts none.
+    - {name: TRUSTED_PROXY_CIDRS, value: ""}
+# Enable only after configuring this hostname's Cloudflare origin header rule
+# (X-WhatsApp-Origin) and exact trusted app-facing peers. Use a dedicated secret;
+# never reuse another service's origin secret.
+cloudflareProxy:
+  enabled: false
+  originSecretName: whatsapp-mcp-cloudflare-origin
+  originSecretKey: CLOUDFLARE_ORIGIN_SECRET
+accounts:
+  - id: profile1
+    label: Profile 1
+    profileSlot: true
+    sessionSecretName: whatsapp-mcp-session-profile1
+  - id: profile2
+    label: Profile 2
+    profileSlot: true
+    sessionSecretName: whatsapp-mcp-session-profile2
+databaseCA:
+  existingConfigMap: whatsapp-mcp-postgres-ca
+bridge:
+  spool:
+    size: 5Gi
+    storageClass: do-block-storage
+worker:
+  modelCache:
+    size: 2Gi
+    storageClass: do-block-storage
+  # Requires at least this much allocatable memory on a single node, after
+  # system/DaemonSet/other pod reservations. A nominal 4GB node may not fit.
+  resources:
+    requests: {cpu: 1000m, memory: 3Gi}
+    limits: {cpu: 1500m, memory: 3Gi}
+s3:
+  endpointUrl: https://REGION.digitaloceanspaces.com
+  publicEndpointUrl: https://REGION.digitaloceanspaces.com
+  bucket: REPLACE_WITH_PRIVATE_BUCKET
+  region: REPLACE_WITH_REGION
+  addressingStyle: virtual
+ingress:
+  enabled: false
+httpRoute:
+  enabled: true
+  parentRefs:
+    - name: public-gateway
+      namespace: gateway-system
+      sectionName: https
+  hostnames:
+    - whatsapp.example.invalid
+networkPolicy:
+  enabled: false
+ciliumNetworkPolicy:
+  enabled: true

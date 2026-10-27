@@ -1,0 +1,12 @@
+.git/
+.local/
+tests/
+__pycache__/
+*.pyc
+*.local.yaml
+*.local.yml
+*.secret.env
+*.secret.txt
+.env
+.env.*
+*.tgz

@@ -1,0 +1,14 @@
+<!doctype html>
+<html lang="en">
+<head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1">
+<meta name="theme-color" content="#ffffff">
+<title>{% block title %}Profiles{% endblock %} · WhatsApp archive</title>
+<link rel="icon" href="{{ url_for('static', filename='brand/favicon.svg') }}" type="image/svg+xml">
+<link rel="stylesheet" href="{{ url_for('static', filename='brand/tokens.css', v='0.1.0') }}">
+<link rel="stylesheet" href="{{ url_for('static', filename='app.css', v='digitalx-1') }}"></head>
+<body><a class="skip-link" href="#main">Skip to content</a>
+<header class="site-header"><a class="brand" href="{{ url_for('home') }}"><img src="{{ url_for('static', filename='brand/mark.svg') }}" width="48" height="48" alt=""><span>WhatsApp archive</span></a>
+{% if session.get('owner') %}<nav class="header-actions" aria-label="Main"><a href="{{ url_for('home') }}" {% if request.endpoint in ['home', 'profile_new', 'profile_detail'] %}aria-current="page"{% endif %}>Profiles</a><a href="{{ url_for('connections') }}" {% if request.endpoint == 'connections' %}aria-current="page"{% endif %}>Connections</a><form method="post" action="{{ url_for('logout') }}"><input type="hidden" name="csrf" value="{{ csrf_token }}"><button class="text-button">Sign out</button></form></nav>{% endif %}</header>
+<main id="main" tabindex="-1">{% block content %}{% endblock %}</main>
+<footer class="site-footer"><img src="{{ url_for('static', filename='brand/logo.svg') }}" width="170" alt="EPFMy DigitalX Services"><p>Private WhatsApp archive</p></footer>
+</body></html>

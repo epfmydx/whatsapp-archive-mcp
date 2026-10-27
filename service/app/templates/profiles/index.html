@@ -1,0 +1,16 @@
+{% extends "base.html" %}
+{% block content %}
+<div class="page-heading"><div><p class="eyebrow">Your archive</p><h1>Profiles</h1><p class="muted">Connect each WhatsApp number to its own profile.</p></div>
+{% if available_count %}<a class="button" href="{{ url_for('profile_new') }}">Add profile</a>{% endif %}</div>
+{% if profiles %}<ul class="profile-list">
+{% for profile in profiles %}{% set stats = profile_stats[profile.id] %}{% set health = stats.health %}<li><div><h2><a href="{{ url_for('profile_detail', account_id=profile.id) }}">{{ profile.label }}</a></h2><p class="status"><span class="status-dot {% if profile.status == 'connected' %}connected{% endif %}"></span>{{ profile.status.replace('_', ' ').capitalize() }}</p><dl class="row-stats">
+<div><dt>Bridge health</dt><dd>{{ health.health.replace('_', ' ').capitalize() }}</dd></div>
+<div><dt>Last bridge check-in</dt><dd>{{ health.last_bridge_seen_at|malaysia_time }}</dd></div>
+<div><dt>Last message ingested</dt><dd>{{ health.last_message_ingested_at|malaysia_time }}</dd></div>
+<div><dt>Pending archive work</dt><dd>{{ health.pending_count if health.pending_count is not none else 'Unknown' }}</dd></div>
+<div><dt>Archived messages</dt><dd>{{ stats.message_count }}</dd></div>
+<div><dt>Media records</dt><dd>{{ stats.media_count }}</dd></div>
+</dl></div><a class="manage-link" href="{{ url_for('profile_detail', account_id=profile.id) }}" aria-label="Manage {{ profile.label }}">Manage <span aria-hidden="true">→</span></a></li>{% endfor %}
+</ul>{% else %}<div class="empty-state"><h2>Add your first profile</h2><p>Give it a name, then link your WhatsApp number.</p></div>{% endif %}
+<p class="capacity">{{ profiles|length }} of {{ capacity }} profiles in use.{% if not available_count %} All profile spaces are in use.{% endif %}</p>
+{% endblock %}

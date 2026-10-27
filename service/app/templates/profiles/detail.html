@@ -1,0 +1,21 @@
+{% extends "base.html" %}{% block title %}{{ profile.label }}{% endblock %}
+{% block content %}<a class="back-link" href="{{ url_for('home') }}">← Profiles</a>
+<div class="page-heading"><div><p class="eyebrow">Profile</p><h1>{{ profile.label }}</h1><p class="status"><span class="status-dot {% if profile.status == 'connected' %}connected{% endif %}"></span>{{ status_text }}</p></div></div>
+{% if notice %}<p class="notice" role="status">{{ notice }}</p>{% endif %}
+<section class="archive-health" aria-labelledby="archive-health-title"><h2 id="archive-health-title">Archive health</h2>
+<p class="status">{{ {'healthy':'Connected; no pending archive work','stale':'Bridge check-in overdue','disconnected':'WhatsApp disconnected','backlog':'Pending work','unknown':'Not yet reported'}[health_info.health] }}</p>
+<dl class="health-details"><div><dt>Last bridge check-in</dt><dd>{{ health_info.last_bridge_seen_at | malaysia_time }}</dd></div>
+<div><dt>Last message ingested</dt><dd>{{ health_info.last_message_ingested_at | malaysia_time }}</dd></div>
+<div><dt>Latest message time</dt><dd>{{ health_info.latest_message_at | malaysia_time }}</dd></div>
+<div><dt>Pending messages/media</dt><dd>{{ health_info.pending_count if health_info.pending_count is not none else 'Unknown' }}</dd></div></dl>
+{% if health_info.error == 'identity_reconciliation_pending' %}<p class="notice">Contact and chat names are waiting to update.</p>{% elif health_info.error == 'archive_or_ingestion_pending' %}<p class="notice">Some messages or media are waiting to reach the archive.</p>{% endif %}
+<p class="capacity">A recent check-in confirms bridge contact, not complete WhatsApp history.</p></section>
+{% if profile.status == 'awaiting_pairing' %}<section class="pairing" aria-labelledby="pairing-title"><div><h2 id="pairing-title">Link WhatsApp</h2><p>On your phone, open WhatsApp → Linked devices → Link a device, then scan this code.</p><p class="muted">If the code expires, refresh this page.</p><a class="button secondary" href="{{ url_for('profile_detail', account_id=profile.id) }}">Refresh pairing code</a></div><img class="qr-code" src="{{ url_for('qr', account_id=profile.id) }}" width="260" height="260" alt="WhatsApp pairing QR code"></section>
+{% elif profile.status != 'connected' %}<p class="notice">Preparing the connection. <a href="{{ url_for('profile_detail', account_id=profile.id) }}">Refresh status</a></p>{% endif %}
+<section class="rename-section" aria-labelledby="rename-title"><h2 id="rename-title">Profile name</h2>
+{% if error %}<p class="notice error" role="alert" id="name-error">Error: {{ error }}</p>{% endif %}
+<form method="post" action="{{ url_for('profile_rename', account_id=profile.id) }}" class="stack">
+<input type="hidden" name="csrf" value="{{ csrf_token }}">
+<label class="sr-only" for="profile-name">Profile name</label><input id="profile-name" name="name" value="{{ form_name }}" maxlength="80" autocomplete="off" required {% if error %}aria-invalid="true" aria-describedby="name-error"{% endif %}>
+<div class="form-actions"><button>Save name</button></div></form></section>
+{% endblock %}

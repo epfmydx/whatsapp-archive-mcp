@@ -1,0 +1,17 @@
+.local/
+.venv*/
+__pycache__/
+*.py[cod]
+.pytest_cache/
+.coverage
+.env
+.env.*
+!.env.example
+*.local.yaml
+*.local.yml
+*.secret.env
+*.secret.txt
+.DS_Store
+*.tgz
+test-results/
+dist/
