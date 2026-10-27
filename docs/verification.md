@@ -93,3 +93,25 @@ reviewer rechecked all reported repairs and found no remaining functional
 issues. Source/notice scans and local Markdown targets were rechecked after
 integration. Public CI had not run at this local qualification checkpoint. The supplied public
 repository will run its source-only workflow after the first push.
+
+## Initial public source publication — 27 October 2026
+
+- Repository: [epfmydx/whatsapp-archive-mcp](https://github.com/epfmydx/whatsapp-archive-mcp),
+  verified public and empty before its initial push.
+- Initial root commit: `e5090856155a658aa1373ba198f88218093dc07f`.
+  It has no parent: private Git history was not exported. Source, documentation
+  and licenses were scanned/reviewed as 248 regular text files before publication.
+- Commit identity uses the maintainer's verified GitHub no-reply address. The
+  source tree contains generic owner configuration and the public repository's
+  Go module path. The original private checkout remained clean and unchanged.
+- [Public CI run 40533375487](https://github.com/epfmydx/whatsapp-archive-mcp/actions/runs/40533375487)
+  completed successfully on that exact source commit. Its test job passed:
+  642 service tests with 14 optional fixtures skipped in the first pass;
+  41 chart tests with 118 subtests; all 14 disposable PostgreSQL integration
+  fixtures in the dedicated pass; 15 worker unittest cases; bridge tests and vet.
+  Strict Helm lint also passed. No live archive or paired session was used.
+- GitHub recognized the repository license as GPL-3.0. Third-party notices retain
+  their own terms; the distribution obligations/limits above still apply.
+- No release tag, public binary/container/model image, registry artifact or
+  Kubernetes deployment was created. Private vulnerability reporting remains an
+  owner-managed setting with the safe fallback described in `SECURITY.md`.
