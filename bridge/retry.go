@@ -178,6 +178,24 @@ func (b *bridge) saveRetry(r record) bool {
 	return true
 }
 
+// Validation failures cannot change by replaying the same retained payload.
+// Preserve it for an explicit decoder repair rather than scheduling it forever.
+func (b *bridge) quarantineInvalidUpdate(r *record) bool {
+	state := retryState{}
+	if r.Retry != nil {
+		state = *r.Retry
+	}
+	state.Stage, state.Reason, state.HTTPStatus = "update_decode", "invalid_metadata", 0
+	state.LastFailureAt = b.nowUTC()
+	state.NextAttemptAt = time.Time{}
+	r.Retry = &state
+	r.ArchiveError = state.Reason
+	if r.AttemptID == "" {
+		r.AttemptID = opaqueID()
+	}
+	return b.quarantine(r, "invalid_metadata")
+}
+
 // drain is a synchronous sweep used by local callers and tests. Production
 // runs the same lane sweeps independently so blocked media cannot hold text.
 func (b *bridge) drain(ctx context.Context) {
@@ -250,6 +268,13 @@ func (b *bridge) drainLane(ctx context.Context, lane retryLane) {
 			continue
 		}
 		if r.QuarantineReason != "" {
+			failed = true
+			continue
+		}
+		if r.InvalidUpdate {
+			if !b.quarantineInvalidUpdate(&r) {
+				return
+			}
 			failed = true
 			continue
 		}
@@ -333,10 +358,6 @@ func (b *bridge) drainLane(ctx context.Context, lane retryLane) {
 		started := time.Now()
 		jobCtx, cancel := context.WithTimeout(ctx, 3*time.Minute)
 		stage := "media_metadata"
-		if r.InvalidUpdate {
-			stage = "update_decode"
-			e = &stageError{stage: stage, reason: "invalid_metadata"}
-		}
 		if e == nil && r.Update == nil && r.MediaPending {
 			e = b.archive(jobCtx, &r)
 		}
@@ -392,6 +413,12 @@ func (b *bridge) drainLane(ctx context.Context, lane retryLane) {
 			rs.DurationMS = time.Since(started).Milliseconds()
 			r.Retry = &rs
 			r.ArchiveError = rs.Reason
+			if rs.Stage == "update_decode" && rs.Reason == "invalid_metadata" {
+				if !b.quarantineInvalidUpdate(&r) {
+					return
+				}
+				continue
+			}
 			if !b.saveRetry(r) {
 				return
 			}

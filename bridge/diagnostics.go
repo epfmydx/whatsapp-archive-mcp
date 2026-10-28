@@ -177,22 +177,32 @@ func coarseMediaType(p *waE2E.Message) string {
 }
 
 type diagnostic struct {
-	ItemID        string     `json:"item_id,omitempty"`
-	AttemptID     string     `json:"attempt_id,omitempty"`
-	URLExpiry     string     `json:"url_expiry,omitempty"`
-	Event         string     `json:"event"`
-	Stage         string     `json:"stage"`
-	Reason        string     `json:"reason"`
-	HTTPStatus    int        `json:"http_status"`
-	ElapsedMS     int64      `json:"elapsed_ms"`
-	PartialBytes  int64      `json:"partial_bytes"`
-	ExpectedBytes uint64     `json:"expected_bytes"`
-	MediaType     string     `json:"media_type"`
-	Attempt       uint32     `json:"attempt"`
-	NextRetryAt   *time.Time `json:"next_retry_at,omitempty"`
+	PathFamily         string     `json:"path_family,omitempty"`
+	PathValidation     string     `json:"path_validation,omitempty"`
+	NotificationResult string     `json:"notification_result,omitempty"`
+	RecoveryBranch     string     `json:"recovery_branch,omitempty"`
+	AttachmentState    string     `json:"attachment_state,omitempty"`
+	ItemID             string     `json:"item_id,omitempty"`
+	AttemptID          string     `json:"attempt_id,omitempty"`
+	URLExpiry          string     `json:"url_expiry,omitempty"`
+	Event              string     `json:"event"`
+	Stage              string     `json:"stage"`
+	Reason             string     `json:"reason"`
+	HTTPStatus         int        `json:"http_status"`
+	ElapsedMS          int64      `json:"elapsed_ms"`
+	PartialBytes       int64      `json:"partial_bytes"`
+	ExpectedBytes      uint64     `json:"expected_bytes"`
+	MediaType          string     `json:"media_type"`
+	Attempt            uint32     `json:"attempt"`
+	NextRetryAt        *time.Time `json:"next_retry_at,omitempty"`
 }
 
 func (b *bridge) emitDiagnostic(d diagnostic) {
+	d.PathFamily = safeDiagnosticValue(d.PathFamily, "mms", "v", "o1_v", "other")
+	d.PathValidation = safeDiagnosticValue(d.PathValidation, "accepted", "invalid_length", "unsafe_characters", "unsupported_family", "invalid_url", "invalid_query", "unsafe_path")
+	d.NotificationResult = safeDiagnosticValue(d.NotificationResult, "success", "general_error", "not_found", "decryption_error", "missing", "other")
+	d.RecoveryBranch = safeDiagnosticValue(d.RecoveryBranch, "retained_attachment", "routing", "sender_unavailable", "request_attempt", "phone_error", "decrypt_error", "stanza_mismatch", "phone_result", "path_validation", "marshal", "refreshed")
+	d.AttachmentState = safeDiagnosticValue(d.AttachmentState, "protobuf_invalid", "attachment_missing", "key_missing", "key_invalid_length", "available")
 	if !opaquePattern.MatchString(d.ItemID) {
 		d.ItemID = ""
 	}
@@ -231,4 +241,18 @@ func (b *bridge) emitDiagnostic(d diagnostic) {
 		_, _ = w.Write(data)
 		b.diagnosticMu.Unlock()
 	}
+}
+
+// Diagnostic contexts contain only fixed vocabulary, never provider strings.
+// Preserve omission for unrelated events, but make an unsafe supplied value explicit.
+func safeDiagnosticValue(value string, allowed ...string) string {
+	if value == "" {
+		return ""
+	}
+	for _, candidate := range allowed {
+		if value == candidate {
+			return value
+		}
+	}
+	return "unknown"
 }

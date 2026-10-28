@@ -1,5 +1,18 @@
 # Public edition implementation contract
 
+Publication authorized 2026-10-28: the owner's release request covers committing
+and normally pushing the reviewed recovery follow-up to this existing public
+source repository and verifying source CI. This supersedes the earlier
+commit/push exclusion for this candidate only. Public image/model/chart registry
+publication, release tags and deployments remain outside this source pipeline.
+
+Accepted 2026-10-28: apply the media-recovery follow-up to this separate public
+edition as source/tests/docs only: relative `/o1/v/` compatibility, sanitized
+recovery diagnostics and terminal retention of permanently invalid updates.
+Preserve read-only MCP, disk/S3 behavior, optional ASR and all existing data.
+No automatic requeue, live phone request, commit/push, release or deployment is
+included in this follow-up.
+
 Accepted 2026-10-27: prepare a separate, sanitized public source edition; preserve the private repository and all deployments. Use Linux/DESKTOP for new linked-device registrations. The MCP catalog is intentionally read-only with no write tools, including local alias mutation tools. Preserve private archive/consent/event security boundaries.
 
 Storage must support S3-compatible services (AWS S3, DigitalOcean Spaces, MinIO) and a disk backend. Disk mode on Kubernetes needs durable storage shared between bridge writers, API readers and optional transcription workers; do not silently rely on ephemeral files or unrelated per-node paths. Authenticated MCP may produce short-lived private media download links.

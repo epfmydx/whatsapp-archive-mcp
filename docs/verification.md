@@ -1,5 +1,31 @@
 # Public edition verification — 27 October 2026
 
+## Recovery compatibility follow-up — 28 October 2026 (unreleased)
+
+Baseline `e0f59ae6ae493cc0d129a5e8b5188c66560aadf9`, plus local bridge/tests/docs
+changes. The shared recovery patch supports `/o1/v/` with signed-byte/integrity
+preservation, adds fixed diagnostic classifications and retains permanent invalid
+updates without automatic retries. Missing-secret reactions remain retryable.
+
+Full bridge `go test -count=1 ./...` and `go vet ./...` passed in an offline
+disposable Go 1.27.3 Alpine container with cached dependencies. Synthetic tests
+cover encrypted responses, unsafe path rejection, notification outcomes,
+diagnostic privacy, durable quarantine/restart and retained payload/attempt state.
+Optional live session-database fixtures were not enabled. Service health tests:
+**60 passed**. Shared bridge patch equality, whitespace and modified local
+documentation links were checked.
+
+A fresh GPT-6.1 Sol reviewer at high effort inspected the integrated source,
+tests and operating guidance in both editions; no actionable findings remained.
+
+No source publication, tag, image/chart release, deployment or live phone request
+was performed. Existing quarantined media is not automatically retried. Follow
+the [bridge's single-item test guidance](../bridge/README.md#own-phone-media-recovery)
+after a separately authorized deployment; synthetic checks do not establish
+actual paired-phone or CDN recovery.
+
+## Initial preparation snapshot
+
 This is a local public-edition preparation snapshot based on a reviewed private
 0.7.0 implementation. Only selected tracked source files were exported. Git
 history, runtime state, credentials, archive experiments and private deployment

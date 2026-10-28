@@ -80,6 +80,10 @@ func encryptedRecovery(t *testing.T, r record, at time.Time, path string) *event
 func encryptedRecoveryStanza(t *testing.T, r record, at time.Time, path, stanza string) *events.MediaRetry {
 	t.Helper()
 	n := &waMmsRetry.MediaRetryNotification{StanzaID: proto.String(stanza), Result: waMmsRetry.MediaRetryNotification_SUCCESS.Enum(), DirectPath: proto.String(path)}
+	return encryptedRecoveryNotification(t, r, at, n)
+}
+func encryptedRecoveryNotification(t *testing.T, r record, at time.Time, n *waMmsRetry.MediaRetryNotification) *events.MediaRetry {
+	t.Helper()
 	plaintext, err := proto.Marshal(n)
 	if err != nil {
 		t.Fatal(err)

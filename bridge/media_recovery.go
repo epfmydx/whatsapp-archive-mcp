@@ -27,6 +27,9 @@ import (
 
 var opaquePattern = regexp.MustCompile(`^[a-f0-9]{32}$`)
 
+var errRecoveryProto = errors.New("retained protobuf unavailable")
+var errRecoveryAttachment = errors.New("retained attachment unavailable")
+
 func opaqueID() string {
 	var b [16]byte
 	if _, err := rand.Read(b[:]); err != nil {
@@ -107,7 +110,7 @@ func (b *bridge) forgetRecovery(r record) {
 	defer b.recoveryMu.Unlock()
 	delete(b.recoveryActive, recoveryBinding(r.Message))
 }
-func (b *bridge) quarantine(r *record, reason string) bool {
+func (b *bridge) quarantine(r *record, reason string, context ...diagnostic) bool {
 	r.QuarantineReason = safeReason(reason)
 	if r.Recovery != nil && r.Recovery.State == "awaiting" {
 		r.Recovery.State = "failed"
@@ -116,7 +119,13 @@ func (b *bridge) quarantine(r *record, reason string) bool {
 		return false
 	}
 	b.forgetRecovery(*r)
-	b.emitDiagnostic(diagnostic{Event: "quarantine", Stage: "quarantine", Reason: r.QuarantineReason, ItemID: r.ItemID, AttemptID: r.AttemptID})
+	d := diagnostic{}
+	if len(context) > 0 {
+		d = context[0]
+	}
+	d.Event, d.Stage, d.Reason = "quarantine", "quarantine", r.QuarantineReason
+	d.ItemID, d.AttemptID = r.ItemID, r.AttemptID
+	b.emitDiagnostic(d)
 	return true
 }
 func (b *bridge) recoveryTimeout() time.Duration {
@@ -152,12 +161,12 @@ func needsRecovery(r record) bool {
 }
 func recoveryAttachment(r record) (*waE2E.Message, attachment, error) {
 	var p waE2E.Message
-	if err := proto.Unmarshal(r.Proto, &p); err != nil {
-		return nil, nil, err
+	if err := proto.Unmarshal(r.Proto, &p); err != nil || len(r.Proto) == 0 {
+		return nil, nil, errRecoveryProto
 	}
 	a, _, _ := attachmentOf(&p)
 	if a == nil {
-		return nil, nil, errors.New("missing attachment")
+		return nil, nil, errRecoveryAttachment
 	}
 	return &p, a, nil
 }
@@ -188,25 +197,75 @@ func hasControl(s string) bool {
 	return false
 }
 func validRecoveryPath(path string) bool {
-	if hasControl(path) {
-		return false
+	_, validation := recoveryPathDiagnostic(path)
+	return validation == "accepted"
+}
+
+func recoveryPathDiagnostic(path string) (family, validation string) {
+	family = "other"
+	switch {
+	case strings.HasPrefix(path, "/mms/"):
+		family = "mms"
+	case strings.HasPrefix(path, "/v/"):
+		family = "v"
+	case strings.HasPrefix(path, "/o1/v/"):
+		family = "o1_v"
 	}
-	if len(path) < 2 || len(path) > 8192 || (!strings.HasPrefix(path, "/mms/") && !strings.HasPrefix(path, "/v/")) || strings.HasPrefix(path, "//") || strings.ContainsAny(path, "\r\n\x00\\#") {
-		return false
+	if len(path) < 2 || len(path) > 8192 {
+		return family, "invalid_length"
+	}
+	if hasControl(path) || strings.ContainsAny(path, "\\#") {
+		return family, "unsafe_characters"
 	}
 	u, err := url.Parse(path)
-	if err != nil || u.IsAbs() || u.Host != "" || u.User != nil || u.Fragment != "" {
-		return false
+	if err != nil || u.IsAbs() || u.Host != "" || u.User != nil || u.Fragment != "" || u.Opaque != "" || !strings.HasPrefix(path, "/") || strings.HasPrefix(path, "//") {
+		return family, "invalid_url"
+	}
+	if family == "other" {
+		return family, "unsupported_family"
 	}
 	query, err := url.QueryUnescape(u.RawQuery)
 	if err != nil || hasControl(query) {
-		return false
+		return family, "invalid_query"
 	}
-	decoded, err := url.PathUnescape(u.Path)
-	if err != nil || strings.Contains(decoded, "..") || strings.Contains(decoded, "//") || strings.Contains(decoded, "\\") || hasControl(decoded) {
-		return false
+	// url.Parse has already decoded Path once. A second unescape incorrectly
+	// treats literal percent bytes as escapes. The original escaped path/query
+	// goes unchanged to the SDK's fixed-host downloader.
+	if strings.Contains(u.Path, "..") || strings.Contains(u.Path, "//") || strings.Contains(u.Path, "\\") || hasControl(u.Path) || encodedPathHazard(u.Path) {
+		return family, "unsafe_path"
 	}
-	return true
+	return family, "accepted"
+}
+
+func encodedPathHazard(path string) bool {
+	// Keep nested encoded traversal/separators/control bytes rejected without
+	// unescaping the whole path a second time. Ordinary literal percent bytes
+	// remain valid and the SDK receives the original escaped path.
+	for i := 0; i+2 < len(path); i++ {
+		if path[i] != '%' {
+			continue
+		}
+		value, err := strconv.ParseUint(path[i+1:i+3], 16, 8)
+		if err == nil && (value < 32 || value == 127 || value == '.' || value == '/' || value == '\\') {
+			return true
+		}
+	}
+	return false
+}
+
+func recoveryAttachmentState(a attachment, err error) string {
+	switch {
+	case errors.Is(err, errRecoveryProto):
+		return "protobuf_invalid"
+	case err != nil || a == nil:
+		return "attachment_missing"
+	case len(a.GetMediaKey()) == 0:
+		return "key_missing"
+	case len(a.GetMediaKey()) != 32:
+		return "key_invalid_length"
+	default:
+		return "available"
+	}
 }
 func setRecoveryPath(p *waE2E.Message, path string) {
 	// Preserve the signed query exactly, along with every integrity/key field.
@@ -281,16 +340,16 @@ func (b *bridge) reserveRecovery(ctx context.Context, r *record, name string) bo
 	}
 	_, a, err := recoveryAttachment(*r)
 	if err != nil || len(a.GetMediaKey()) != 32 {
-		b.quarantine(r, "recovery_no_key")
+		b.quarantine(r, "recovery_no_key", diagnostic{RecoveryBranch: "retained_attachment", AttachmentState: recoveryAttachmentState(a, err)})
 		return true
 	}
 	info, err := mediaInfo(r.Message)
 	if err != nil {
-		b.quarantine(r, "recovery_rejected")
+		b.quarantine(r, "recovery_rejected", diagnostic{RecoveryBranch: "routing"})
 		return true
 	}
 	if b.sendMediaRetry == nil {
-		b.quarantine(r, "recovery_unavailable")
+		b.quarantine(r, "recovery_unavailable", diagnostic{RecoveryBranch: "sender_unavailable"})
 		return true
 	}
 	b.recoveryMu.Lock()
@@ -358,7 +417,7 @@ func (b *bridge) reserveRecovery(ctx context.Context, r *record, name string) bo
 	}
 	// A valid response may have arrived before a send error. Keep the reservation
 	// awaiting until its deadline and consume queued responses first next sweep.
-	b.emitDiagnostic(diagnostic{Event: "media_recovery", Stage: "media_recovery", Reason: reason, ItemID: r.ItemID, AttemptID: r.AttemptID, Attempt: attempts})
+	b.emitDiagnostic(diagnostic{Event: "media_recovery", Stage: "media_recovery", Reason: reason, ItemID: r.ItemID, AttemptID: r.AttemptID, Attempt: attempts, RecoveryBranch: "request_attempt"})
 	return true
 }
 func retryResponseMatches(r record, response recoveryResponse) bool {
@@ -388,6 +447,25 @@ func retryResponseMatches(r record, response recoveryResponse) bool {
 	_, a, err := recoveryAttachment(r)
 	return err == nil && len(v.MediaKey) == 32 && subtle.ConstantTimeCompare(a.GetMediaKey(), v.MediaKey) == 1
 }
+
+func recoveryNotificationResult(n *waMmsRetry.MediaRetryNotification) string {
+	if n == nil || n.Result == nil {
+		return "missing"
+	}
+	switch n.GetResult() {
+	case waMmsRetry.MediaRetryNotification_SUCCESS:
+		return "success"
+	case waMmsRetry.MediaRetryNotification_GENERAL_ERROR:
+		return "general_error"
+	case waMmsRetry.MediaRetryNotification_NOT_FOUND:
+		return "not_found"
+	case waMmsRetry.MediaRetryNotification_DECRYPTION_ERROR:
+		return "decryption_error"
+	default:
+		return "other"
+	}
+}
+
 func (b *bridge) applyRecoveryResponses() {
 	for {
 		b.recoveryMu.Lock()
@@ -410,33 +488,48 @@ func (b *bridge) applyRecoveryResponses() {
 		}
 		notification, err := whatsmeow.DecryptMediaRetryNotification(response.Event, r.Recovery.MediaKey)
 		if err != nil { // Unauthenticated/wrong-key ciphertext cannot change item state.
+			d := diagnostic{Event: "media_recovery", Stage: "media_recovery", Reason: "unknown", ItemID: r.ItemID, AttemptID: r.AttemptID, RecoveryBranch: "decrypt_error"}
+			if response.Event.Error != nil && response.Event.Ciphertext == nil {
+				d.RecoveryBranch = "phone_error"
+			}
 			if errors.Is(err, whatsmeow.ErrMediaNotAvailableOnPhone) {
-				b.quarantine(&r, "recovery_unavailable")
+				b.quarantine(&r, "recovery_unavailable", d)
+			} else {
+				b.emitDiagnostic(d)
 			}
 			continue
 		}
+		d := diagnostic{Event: "media_recovery", Stage: "media_recovery", Reason: "ok", ItemID: r.ItemID, AttemptID: r.AttemptID, NotificationResult: recoveryNotificationResult(notification)}
 		if notification.GetStanzaID() != "" && notification.GetStanzaID() != r.Message.ID {
+			d.Reason, d.RecoveryBranch = "recovery_rejected", "stanza_mismatch"
+			b.emitDiagnostic(d)
 			continue
 		}
 		if notification.GetResult() != waMmsRetry.MediaRetryNotification_SUCCESS {
-			b.quarantine(&r, "recovery_rejected")
+			d.RecoveryBranch = "phone_result"
+			b.quarantine(&r, "recovery_rejected", d)
 			continue
 		}
-		if !validRecoveryPath(notification.GetDirectPath()) {
-			b.quarantine(&r, "recovery_invalid_path")
+		d.PathFamily, d.PathValidation = recoveryPathDiagnostic(notification.GetDirectPath())
+		if d.PathValidation != "accepted" {
+			d.RecoveryBranch = "path_validation"
+			b.quarantine(&r, "recovery_invalid_path", d)
 			continue
 		}
-		p, _, err := recoveryAttachment(r)
+		p, a, err := recoveryAttachment(r)
 		if err != nil {
-			b.quarantine(&r, "recovery_rejected")
+			d.RecoveryBranch, d.AttachmentState = "retained_attachment", recoveryAttachmentState(a, err)
+			b.quarantine(&r, "recovery_rejected", d)
 			continue
 		}
 		setRecoveryPath(p, notification.GetDirectPath())
-		r.Proto, err = proto.Marshal(p)
+		updatedProto, err := proto.Marshal(p)
 		if err != nil {
-			b.quarantine(&r, "recovery_rejected")
+			d.RecoveryBranch = "marshal"
+			b.quarantine(&r, "recovery_rejected", d)
 			continue
 		}
+		r.Proto = updatedProto
 		r.Recovery.State = "refreshed"
 		r.MediaAttempts = 0
 		r.Retry.NextAttemptAt = b.nowUTC()
@@ -444,7 +537,8 @@ func (b *bridge) applyRecoveryResponses() {
 			return
 		}
 		b.forgetRecovery(r)
-		b.emitDiagnostic(diagnostic{Event: "media_recovery", Stage: "media_recovery", Reason: "ok", ItemID: r.ItemID, AttemptID: r.AttemptID})
+		d.RecoveryBranch = "refreshed"
+		b.emitDiagnostic(d)
 	}
 }
 func (b *bridge) serveRequeue(w http.ResponseWriter, req *http.Request) {

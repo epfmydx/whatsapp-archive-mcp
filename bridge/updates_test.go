@@ -1,6 +1,7 @@
 package main
 
 import (
+	"bytes"
 	"context"
 	"encoding/json"
 	"errors"
@@ -245,6 +246,9 @@ func TestEncryptedReactionDurableRetryAndLocalDecrypt(t *testing.T) {
 		t.Fatal("missing secret not retained")
 	}
 	r, _ := b.spool.read(names[0])
+	if r.QuarantineReason != "" || r.Retry == nil || r.Retry.Reason != "missing_metadata" || !r.Retry.NextAttemptAt.After(r.Retry.LastAttemptAt) {
+		t.Fatal("missing reaction secret must remain retryable")
+	}
 	eventID := r.Update.EventID
 	b.client = &whatsmeow.Client{Store: &store.Device{MsgSecrets: &fixtureSecrets{secret: secret, sender: e.Info.Sender}}}
 	b.now = func() time.Time { return time.Now().Add(2 * time.Hour) }
@@ -369,19 +373,24 @@ func TestMalformedUpdatesQuarantinedWithoutStoppingReceiver(t *testing.T) {
 	}
 	for _, name := range names {
 		r, err := b.spool.read(name)
-		if err != nil || r.Retry.Attempts != 1 || r.Retry.Stage != "update_decode" || r.Retry.Reason != "invalid_metadata" || !r.Retry.NextAttemptAt.After(now) {
-			t.Fatal("quarantine missing bounded retry")
+		if err != nil || r.Retry.Attempts != 0 || r.Retry.Stage != "update_decode" || r.Retry.Reason != "invalid_metadata" || !r.Retry.NextAttemptAt.IsZero() || r.QuarantineReason != "invalid_metadata" {
+			t.Fatal("permanent update was not quarantined")
 		}
+	}
+	health := b.spool.retryHealth(now)
+	if health.Quarantined != len(cases) || health.Due != 0 || health.CoolingDown != 0 {
+		t.Fatal("permanent updates remain scheduled")
 	}
 	b.spool.close()
 	b = newTestBridge(t, dir)
 	b.cfg.AppURL = srv.URL
+	now = now.Add(24 * time.Hour)
 	b.now = func() time.Time { return now }
 	b.drain(context.Background())
 	for _, name := range names {
 		r, err := b.spool.read(name)
-		if err != nil || !r.InvalidUpdate || r.Retry.Attempts != 1 || string(r.Proto) != string(originalRaw[name]) {
-			t.Fatal("restart lost quarantine or cooldown")
+		if err != nil || !r.InvalidUpdate || r.Retry.Attempts != 0 || r.QuarantineReason != "invalid_metadata" || string(r.Proto) != string(originalRaw[name]) {
+			t.Fatal("restart lost quarantine or retained payload")
 		}
 	}
 	if calls != 1 {
@@ -445,7 +454,67 @@ func TestEncryptedInvalidTimestampDoesNotTriggerSpoolFatal(t *testing.T) {
 		t.Fatal("malformed encrypted event lost")
 	}
 	r, err := b.spool.read(names[0])
-	if err != nil || !r.EncryptedReaction || r.Retry.Stage != "update_decode" || r.Retry.Reason != "invalid_metadata" {
-		t.Fatal("malformed decrypted event not retained for retry")
+	if err != nil || !r.EncryptedReaction || r.Retry.Stage != "update_decode" || r.Retry.Reason != "invalid_metadata" || r.QuarantineReason != "invalid_metadata" || !r.Retry.NextAttemptAt.IsZero() {
+		t.Fatal("malformed decrypted event not retained for repair")
+	}
+	before, _ := json.Marshal(r)
+	b.now = func() time.Time { return r.Retry.LastFailureAt.Add(24 * time.Hour) }
+	b.drain(context.Background())
+	after, err := b.spool.read(names[0])
+	encoded, _ := json.Marshal(after)
+	if err != nil || string(before) != string(encoded) {
+		t.Fatal("permanent encrypted reaction was attempted again")
+	}
+}
+
+func TestLegacyInvalidUpdateQuarantinedWithoutResettingAttempts(t *testing.T) {
+	b := newTestBridge(t, t.TempDir())
+	now := fixedRetryClock(b)
+	e := reactionEvent("invalid")
+	e.Message.GetReactionMessage().Key = nil
+	if !b.capture(e, "") {
+		t.Fatal("capture failed")
+	}
+	names, _ := b.spool.pending()
+	r, err := b.spool.read(names[0])
+	if err != nil {
+		t.Fatal(err)
+	}
+	r.Retry = &retryState{Attempts: 14, Stage: "update_decode", Reason: "invalid_metadata", NextAttemptAt: now.Add(time.Hour)}
+	if err := b.spool.save(r, false); err != nil {
+		t.Fatal(err)
+	}
+	original, raw := append([]byte(nil), r.Proto...), append([]byte(nil), r.RawProto...)
+	b.drain(context.Background())
+	got, err := b.spool.read(names[0])
+	if err != nil || got.Retry.Attempts != 14 || got.QuarantineReason != "invalid_metadata" || !got.Retry.NextAttemptAt.IsZero() || !bytes.Equal(got.Proto, original) || !bytes.Equal(got.RawProto, raw) {
+		t.Fatal("legacy quarantine changed attempts or payloads")
+	}
+}
+
+func TestInvalidUpdateQuarantinePersistenceFailureStopsBridge(t *testing.T) {
+	b := newTestBridge(t, t.TempDir())
+	e := reactionEvent("invalid")
+	e.Message.GetReactionMessage().Key = nil
+	if !b.capture(e, "") {
+		t.Fatal("capture failed")
+	}
+	// Save the correlation ID first so the injected failure exercises quarantine.
+	names, _ := b.spool.pending()
+	r, _ := b.spool.read(names[0])
+	r.ItemID = opaqueID()
+	if err := b.spool.save(r, false); err != nil {
+		t.Fatal(err)
+	}
+	b.spool.writeRecord = func(string, string, []byte) error { return errors.New("fixture persistence failure") }
+	b.drain(context.Background())
+	select {
+	case <-b.fatal:
+	default:
+		t.Fatal("failed quarantine did not stop further work")
+	}
+	got, err := b.spool.read(names[0])
+	if err != nil || !bytes.Equal(got.Proto, r.Proto) || got.QuarantineReason != "" {
+		t.Fatal("failed quarantine altered durable record")
 	}
 }
