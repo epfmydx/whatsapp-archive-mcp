@@ -468,8 +468,31 @@ class ChartTests(unittest.TestCase):
         self.assertEqual(pod["imagePullSecrets"], [{"name": "pull-key"}])
 
     def test_invalid_worker_bounds_rejected_by_schema(self):
+        for value in ("0", "-1", "1.5", "true", "null"):
+            with self.subTest(value=value), self.assertRaises(subprocess.CalledProcessError):
+                render("--set", "worker.threads=" + value)
         with self.assertRaises(subprocess.CalledProcessError):
-            render("--set", "worker.threads=999")
+            render("--set-string", "worker.threads=4")
+
+    def test_worker_threads_and_resources_remain_infrastructure_values(self):
+        schema = json.loads((CHART / "values.schema.json").read_text())
+        self.assertNotIn("maximum", schema["properties"]["worker"]["properties"]["threads"])
+        before = render()
+        old_controller = next(doc for doc in before if doc["kind"] == "Deployment" and doc["metadata"]["name"].endswith("-controller"))
+        for count in (4, 64, 256, 999):
+            with self.subTest(threads=count):
+                docs = render("--set", f"worker.threads={count}",
+                              "--set-string", "worker.resources.requests.cpu=8",
+                              "--set-string", "worker.resources.limits.cpu=16",
+                              "--set-string", "worker.resources.requests.memory=8Gi",
+                              "--set-string", "worker.resources.limits.memory=16Gi")
+                cm = next(doc for doc in docs if doc["kind"] == "ConfigMap" and "job.json" in doc.get("data", {}))
+                container = json.loads(cm["data"]["job.json"])["spec"]["template"]["spec"]["containers"][0]
+                env = {entry["name"]: entry.get("value") for entry in container["env"]}
+                self.assertEqual(env["WORKER_THREADS"], str(count))
+                self.assertEqual(container["resources"], {"requests": {"cpu": "8", "memory": "8Gi"}, "limits": {"cpu": "16", "memory": "16Gi"}})
+                controller = next(doc for doc in docs if doc["kind"] == "Deployment" and doc["metadata"]["name"].endswith("-controller"))
+                self.assertNotEqual(controller["spec"]["template"]["metadata"]["annotations"]["checksum/worker-template"], old_controller["spec"]["template"]["metadata"]["annotations"]["checksum/worker-template"])
 
     def test_gateway_route_exposes_only_public_paths(self):
         docs = render("-f", str(CHART / "values-doks.example.yaml"))

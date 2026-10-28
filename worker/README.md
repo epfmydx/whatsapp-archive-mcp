@@ -22,3 +22,10 @@ Optional transcription is controlled by `worker.enabled` in Helm and
 jobs. Disk mode uses `STORAGE_BACKEND=disk` and the same `MEDIA_ROOT` archive as
 the bridge/API; no S3 credentials are required. Size/hash checks remain before
 decoding for both backends. See [configuration](../docs/configuration.md).
+
+Source chart 0.7.3 and the updated worker accept positive `worker.threads` /
+`WORKER_THREADS` integers without the former two-thread maximum. CPU/RAM remain
+Helm resource values; defaults stay one thread and 3Gi memory. Model/runtime pins,
+media/duration bounds, authenticated integrity checks and optional-ASR behavior
+remain unchanged. See [ASR tuning](../docs/asr-tuning.md) and the
+[structured public-audio benchmark](tests/thread-benchmark-results.json).

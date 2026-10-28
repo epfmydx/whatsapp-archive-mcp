@@ -1,5 +1,17 @@
 # Public edition implementation contract
 
+Port authorized 2026-10-28 after private acceptance: the owner reported the
+private deployment working well, with roughly 2.5× ASR improvement, and requested
+the fixes be ported here. Apply the deterministic recovery privacy-test correction
+and positive thread counts without a fixed server-size maximum, preserving
+read-only MCP, disk/S3 storage, optional ASR, defaults and dependency/model pins.
+Record controlled public-audio benchmark evidence separately from operator
+feedback. Source chart/appVersion becomes 0.7.3; build matching images yourself.
+This authorizes source commits, normal main push and public CI verification.
+No private Git history, runtime/archive data, deployment records, registry images,
+public release tag, model publication or live rollout is included. The sibling
+private checkout and all running deployments remain unchanged.
+
 Publication authorized 2026-10-28: the owner's release request covers committing
 and normally pushing the reviewed recovery follow-up to this existing public
 source repository and verifying source CI. This supersedes the earlier

@@ -1,6 +1,7 @@
 # Documentation
 
 - [Configuration](configuration.md): S3/Spaces/MinIO/disk storage and optional ASR.
+- [ASR tuning](asr-tuning.md): chart-controlled threads/resources and CPU benchmark findings.
 - [Kubernetes setup](../KUBERNETES.md): images, databases, Secrets and volumes.
 - [Service contracts](../service/README.md): read-only MCP, OAuth and event interfaces.
 - [Bridge](../bridge/README.md): linked-device and archive behavior.

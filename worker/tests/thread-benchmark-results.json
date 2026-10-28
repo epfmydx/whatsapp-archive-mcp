@@ -1,0 +1,596 @@
+{
+  "image_id": "sha256:12def005ad595bbb971868e7305f913cf34249c1b2ce8e90f7207e8d9b46530b",
+  "cpu_limit": 4,
+  "cpuset": "0,1,2,3",
+  "memory_limit_gib": 3,
+  "swap_disabled": true,
+  "network_disabled": true,
+  "repetitions_per_setting": 3,
+  "platform": "linux/arm64",
+  "sequence": [
+    1,
+    2,
+    4,
+    4,
+    2,
+    1,
+    2,
+    4,
+    1
+  ],
+  "scope": "Public speech only; warm file cache; worker conversion/chunking and per-invocation model load included. Downloads, integrity scan, queue/node startup and storage/callbacks excluded. Local ARM64, not production AMD64.",
+  "fixtures": {
+    "public_jfk": {
+      "1": {
+        "median_seconds": 5.961936210980639,
+        "min_seconds": 5.658951960969716,
+        "max_seconds": 6.492125043994747,
+        "median_average_cpu_cores": 0.979518122477602,
+        "max_native_children_rss_mib": 1283.8046875,
+        "audio_seconds": 11.0,
+        "transcript_hashes": [
+          "c3d6020f49a0762c0ffe655f3ba99ee0131325bfea9ff68aed8ad096350db99f"
+        ]
+      },
+      "2": {
+        "median_seconds": 3.923179542995058,
+        "min_seconds": 3.9203035440295935,
+        "max_seconds": 4.0132780850399286,
+        "median_average_cpu_cores": 1.7936140599956416,
+        "max_native_children_rss_mib": 1285.3046875,
+        "audio_seconds": 11.0,
+        "transcript_hashes": [
+          "c3d6020f49a0762c0ffe655f3ba99ee0131325bfea9ff68aed8ad096350db99f"
+        ]
+      },
+      "4": {
+        "median_seconds": 2.2647280010860413,
+        "min_seconds": 2.2081666679587215,
+        "max_seconds": 2.3536698759999126,
+        "median_average_cpu_cores": 3.18644932042143,
+        "max_native_children_rss_mib": 1282.68359375,
+        "audio_seconds": 11.0,
+        "transcript_hashes": [
+          "c3d6020f49a0762c0ffe655f3ba99ee0131325bfea9ff68aed8ad096350db99f"
+        ]
+      },
+      "four_vs_one_speedup": 2.632517550947229,
+      "four_vs_two_speedup": 1.732296126119213,
+      "four_vs_two_time_reduction_percent": 42.27314920802506
+    },
+    "synthetic_3x_jfk": {
+      "1": {
+        "median_seconds": 17.732748048962094,
+        "min_seconds": 17.35194492409937,
+        "max_seconds": 18.090244426042773,
+        "median_average_cpu_cores": 0.9889954816886727,
+        "max_native_children_rss_mib": 1375.91015625,
+        "audio_seconds": 33.0,
+        "transcript_hashes": [
+          "ebed5b7affbcb6d1825f84d3e7cd83eed427721e1c1b321caf7d634c250294a0"
+        ]
+      },
+      "2": {
+        "median_seconds": 10.845381545950659,
+        "min_seconds": 10.119161129929125,
+        "max_seconds": 10.86179750598967,
+        "median_average_cpu_cores": 1.8931729291271098,
+        "max_native_children_rss_mib": 1376.2109375,
+        "audio_seconds": 33.0,
+        "transcript_hashes": [
+          "ebed5b7affbcb6d1825f84d3e7cd83eed427721e1c1b321caf7d634c250294a0"
+        ]
+      },
+      "4": {
+        "median_seconds": 6.519589795032516,
+        "min_seconds": 6.2105267100268975,
+        "max_seconds": 6.768368044984527,
+        "median_average_cpu_cores": 3.434516695676299,
+        "max_native_children_rss_mib": 1377.41796875,
+        "audio_seconds": 33.0,
+        "transcript_hashes": [
+          "ebed5b7affbcb6d1825f84d3e7cd83eed427721e1c1b321caf7d634c250294a0"
+        ]
+      },
+      "four_vs_one_speedup": 2.7199177565547514,
+      "four_vs_two_speedup": 1.6635067369137397,
+      "four_vs_two_time_reduction_percent": 39.886026439828335
+    }
+  },
+  "max_cgroup_memory_mib_by_threads": {
+    "1": 1391.0078125,
+    "2": 1392.875,
+    "4": 1392.82421875
+  },
+  "oom_events_present": false,
+  "measured_date": "2026-10-28",
+  "runtime_revision": "8facde6fcd8fb9caa585a5788ab450df6e8ec7db",
+  "model_sha256": "f081b2d5e23bd669d92cc331d722a8a0681943b8e6f34b48996fd5c319b5acd8",
+  "worker_validation_note": "Historical benchmark ran before removal of the two-thread bound, with an explicit test-only Config override. The native transcription function itself was unchanged.",
+  "memory_measurement_note": "Whole-container high water includes both fixtures, model hash scan/file cache, Python and tmpfs; native child RSS is cumulative within each run.",
+  "runs": [
+    {
+      "threads": 1,
+      "worker_validation_override_for_benchmark": false,
+      "architecture": "aarch64",
+      "results": [
+        {
+          "fixture": "public_jfk",
+          "audio_seconds": 11.0,
+          "elapsed_seconds": 5.658951960969716,
+          "real_time_factor": 0.5144501782699742,
+          "cpu_seconds": 5.543046,
+          "average_cpu_cores": 0.979518122477602,
+          "throttled_usec": 0,
+          "native_children_peak_rss_kib": 1314472,
+          "transcript_characters": 108,
+          "transcript_sha256": "c3d6020f49a0762c0ffe655f3ba99ee0131325bfea9ff68aed8ad096350db99f",
+          "native_thread_settings": [
+            1
+          ],
+          "error": null
+        },
+        {
+          "fixture": "synthetic_3x_jfk",
+          "audio_seconds": 33.0,
+          "elapsed_seconds": 17.35194492409937,
+          "real_time_factor": 0.5258165128514961,
+          "cpu_seconds": 17.061237,
+          "average_cpu_cores": 0.9832463781223959,
+          "throttled_usec": 0,
+          "native_children_peak_rss_kib": 1408760,
+          "transcript_characters": 326,
+          "transcript_sha256": "ebed5b7affbcb6d1825f84d3e7cd83eed427721e1c1b321caf7d634c250294a0",
+          "native_thread_settings": [
+            1,
+            1
+          ],
+          "error": null
+        }
+      ],
+      "model_sha256": "f081b2d5e23bd669d92cc331d722a8a0681943b8e6f34b48996fd5c319b5acd8",
+      "runtime_revision": "8facde6fcd8fb9caa585a5788ab450df6e8ec7db",
+      "source_audio_sha256": "59dfb9a4acb36fe2a2affc14bacbee2920ff435cb13cc314a08c13f66ba7860e",
+      "native_binary_sha256": "a5e5d735f54ce63d1a1f11a455fe2540ffa24367633798fca69865aa5bdf0b7e",
+      "memory_peak_bytes_including_file_cache": 1458540544,
+      "memory_events": "low 0\nhigh 0\nmax 0\noom 0\noom_kill 0\noom_group_kill 0\nsock_throttled 0\n",
+      "cpu_max": "400000 100000",
+      "cpuset_effective": "0-3",
+      "sequence": 1
+    },
+    {
+      "threads": 2,
+      "worker_validation_override_for_benchmark": false,
+      "architecture": "aarch64",
+      "results": [
+        {
+          "fixture": "public_jfk",
+          "audio_seconds": 11.0,
+          "elapsed_seconds": 3.9203035440295935,
+          "real_time_factor": 0.3563912312754176,
+          "cpu_seconds": 6.732547,
+          "average_cpu_cores": 1.717353496836565,
+          "throttled_usec": 0,
+          "native_children_peak_rss_kib": 1316152,
+          "transcript_characters": 108,
+          "transcript_sha256": "c3d6020f49a0762c0ffe655f3ba99ee0131325bfea9ff68aed8ad096350db99f",
+          "native_thread_settings": [
+            2
+          ],
+          "error": null
+        },
+        {
+          "fixture": "synthetic_3x_jfk",
+          "audio_seconds": 33.0,
+          "elapsed_seconds": 10.119161129929125,
+          "real_time_factor": 0.30664124636148865,
+          "cpu_seconds": 19.122559,
+          "average_cpu_cores": 1.8897375735466655,
+          "throttled_usec": 0,
+          "native_children_peak_rss_kib": 1409156,
+          "transcript_characters": 326,
+          "transcript_sha256": "ebed5b7affbcb6d1825f84d3e7cd83eed427721e1c1b321caf7d634c250294a0",
+          "native_thread_settings": [
+            2,
+            2
+          ],
+          "error": null
+        }
+      ],
+      "model_sha256": "f081b2d5e23bd669d92cc331d722a8a0681943b8e6f34b48996fd5c319b5acd8",
+      "runtime_revision": "8facde6fcd8fb9caa585a5788ab450df6e8ec7db",
+      "source_audio_sha256": "59dfb9a4acb36fe2a2affc14bacbee2920ff435cb13cc314a08c13f66ba7860e",
+      "native_binary_sha256": "a5e5d735f54ce63d1a1f11a455fe2540ffa24367633798fca69865aa5bdf0b7e",
+      "memory_peak_bytes_including_file_cache": 1460535296,
+      "memory_events": "low 0\nhigh 0\nmax 0\noom 0\noom_kill 0\noom_group_kill 0\nsock_throttled 0\n",
+      "cpu_max": "400000 100000",
+      "cpuset_effective": "0-3",
+      "sequence": 2
+    },
+    {
+      "threads": 4,
+      "worker_validation_override_for_benchmark": true,
+      "architecture": "aarch64",
+      "results": [
+        {
+          "fixture": "public_jfk",
+          "audio_seconds": 11.0,
+          "elapsed_seconds": 2.2081666679587215,
+          "real_time_factor": 0.20074242435988376,
+          "cpu_seconds": 7.135878,
+          "average_cpu_cores": 3.231584872439255,
+          "throttled_usec": 0,
+          "native_children_peak_rss_kib": 1313400,
+          "transcript_characters": 108,
+          "transcript_sha256": "c3d6020f49a0762c0ffe655f3ba99ee0131325bfea9ff68aed8ad096350db99f",
+          "native_thread_settings": [
+            4
+          ],
+          "error": null
+        },
+        {
+          "fixture": "synthetic_3x_jfk",
+          "audio_seconds": 33.0,
+          "elapsed_seconds": 6.2105267100268975,
+          "real_time_factor": 0.18819777909172417,
+          "cpu_seconds": 21.385522,
+          "average_cpu_cores": 3.4434312898893213,
+          "throttled_usec": 8205,
+          "native_children_peak_rss_kib": 1408956,
+          "transcript_characters": 326,
+          "transcript_sha256": "ebed5b7affbcb6d1825f84d3e7cd83eed427721e1c1b321caf7d634c250294a0",
+          "native_thread_settings": [
+            4,
+            4
+          ],
+          "error": null
+        }
+      ],
+      "model_sha256": "f081b2d5e23bd669d92cc331d722a8a0681943b8e6f34b48996fd5c319b5acd8",
+      "runtime_revision": "8facde6fcd8fb9caa585a5788ab450df6e8ec7db",
+      "source_audio_sha256": "59dfb9a4acb36fe2a2affc14bacbee2920ff435cb13cc314a08c13f66ba7860e",
+      "native_binary_sha256": "a5e5d735f54ce63d1a1f11a455fe2540ffa24367633798fca69865aa5bdf0b7e",
+      "memory_peak_bytes_including_file_cache": 1458790400,
+      "memory_events": "low 0\nhigh 0\nmax 0\noom 0\noom_kill 0\noom_group_kill 0\nsock_throttled 0\n",
+      "cpu_max": "400000 100000",
+      "cpuset_effective": "0-3",
+      "sequence": 3
+    },
+    {
+      "threads": 4,
+      "worker_validation_override_for_benchmark": true,
+      "architecture": "aarch64",
+      "results": [
+        {
+          "fixture": "public_jfk",
+          "audio_seconds": 11.0,
+          "elapsed_seconds": 2.2647280010860413,
+          "real_time_factor": 0.20588436373509467,
+          "cpu_seconds": 7.216441,
+          "average_cpu_cores": 3.18644932042143,
+          "throttled_usec": 3043,
+          "native_children_peak_rss_kib": 1313468,
+          "transcript_characters": 108,
+          "transcript_sha256": "c3d6020f49a0762c0ffe655f3ba99ee0131325bfea9ff68aed8ad096350db99f",
+          "native_thread_settings": [
+            4
+          ],
+          "error": null
+        },
+        {
+          "fixture": "synthetic_3x_jfk",
+          "audio_seconds": 33.0,
+          "elapsed_seconds": 6.768368044984527,
+          "real_time_factor": 0.2051020619692281,
+          "cpu_seconds": 22.100508,
+          "average_cpu_cores": 3.2652639237573444,
+          "throttled_usec": 2891,
+          "native_children_peak_rss_kib": 1410476,
+          "transcript_characters": 326,
+          "transcript_sha256": "ebed5b7affbcb6d1825f84d3e7cd83eed427721e1c1b321caf7d634c250294a0",
+          "native_thread_settings": [
+            4,
+            4
+          ],
+          "error": null
+        }
+      ],
+      "model_sha256": "f081b2d5e23bd669d92cc331d722a8a0681943b8e6f34b48996fd5c319b5acd8",
+      "runtime_revision": "8facde6fcd8fb9caa585a5788ab450df6e8ec7db",
+      "source_audio_sha256": "59dfb9a4acb36fe2a2affc14bacbee2920ff435cb13cc314a08c13f66ba7860e",
+      "native_binary_sha256": "a5e5d735f54ce63d1a1f11a455fe2540ffa24367633798fca69865aa5bdf0b7e",
+      "memory_peak_bytes_including_file_cache": 1460371456,
+      "memory_events": "low 0\nhigh 0\nmax 0\noom 0\noom_kill 0\noom_group_kill 0\nsock_throttled 0\n",
+      "cpu_max": "400000 100000",
+      "cpuset_effective": "0-3",
+      "sequence": 4
+    },
+    {
+      "threads": 2,
+      "worker_validation_override_for_benchmark": false,
+      "architecture": "aarch64",
+      "results": [
+        {
+          "fixture": "public_jfk",
+          "audio_seconds": 11.0,
+          "elapsed_seconds": 4.0132780850399286,
+          "real_time_factor": 0.36484346227635717,
+          "cpu_seconds": 7.198272,
+          "average_cpu_cores": 1.7936140599956416,
+          "throttled_usec": 0,
+          "native_children_peak_rss_kib": 1314284,
+          "transcript_characters": 108,
+          "transcript_sha256": "c3d6020f49a0762c0ffe655f3ba99ee0131325bfea9ff68aed8ad096350db99f",
+          "native_thread_settings": [
+            2
+          ],
+          "error": null
+        },
+        {
+          "fixture": "synthetic_3x_jfk",
+          "audio_seconds": 33.0,
+          "elapsed_seconds": 10.86179750598967,
+          "real_time_factor": 0.32914537896938395,
+          "cpu_seconds": 20.563261,
+          "average_cpu_cores": 1.8931729291271098,
+          "throttled_usec": 0,
+          "native_children_peak_rss_kib": 1409144,
+          "transcript_characters": 326,
+          "transcript_sha256": "ebed5b7affbcb6d1825f84d3e7cd83eed427721e1c1b321caf7d634c250294a0",
+          "native_thread_settings": [
+            2,
+            2
+          ],
+          "error": null
+        }
+      ],
+      "model_sha256": "f081b2d5e23bd669d92cc331d722a8a0681943b8e6f34b48996fd5c319b5acd8",
+      "runtime_revision": "8facde6fcd8fb9caa585a5788ab450df6e8ec7db",
+      "source_audio_sha256": "59dfb9a4acb36fe2a2affc14bacbee2920ff435cb13cc314a08c13f66ba7860e",
+      "native_binary_sha256": "a5e5d735f54ce63d1a1f11a455fe2540ffa24367633798fca69865aa5bdf0b7e",
+      "memory_peak_bytes_including_file_cache": 1458638848,
+      "memory_events": "low 0\nhigh 0\nmax 0\noom 0\noom_kill 0\noom_group_kill 0\nsock_throttled 0\n",
+      "cpu_max": "400000 100000",
+      "cpuset_effective": "0-3",
+      "sequence": 5
+    },
+    {
+      "threads": 1,
+      "worker_validation_override_for_benchmark": false,
+      "architecture": "aarch64",
+      "results": [
+        {
+          "fixture": "public_jfk",
+          "audio_seconds": 11.0,
+          "elapsed_seconds": 5.961936210980639,
+          "real_time_factor": 0.5419942009982399,
+          "cpu_seconds": 5.861568,
+          "average_cpu_cores": 0.9831651652367931,
+          "throttled_usec": 0,
+          "native_children_peak_rss_kib": 1313144,
+          "transcript_characters": 108,
+          "transcript_sha256": "c3d6020f49a0762c0ffe655f3ba99ee0131325bfea9ff68aed8ad096350db99f",
+          "native_thread_settings": [
+            1
+          ],
+          "error": null
+        },
+        {
+          "fixture": "synthetic_3x_jfk",
+          "audio_seconds": 33.0,
+          "elapsed_seconds": 18.090244426042773,
+          "real_time_factor": 0.5481892250315992,
+          "cpu_seconds": 17.89117,
+          "average_cpu_cores": 0.9889954816886727,
+          "throttled_usec": 0,
+          "native_children_peak_rss_kib": 1408808,
+          "transcript_characters": 326,
+          "transcript_sha256": "ebed5b7affbcb6d1825f84d3e7cd83eed427721e1c1b321caf7d634c250294a0",
+          "native_thread_settings": [
+            1,
+            1
+          ],
+          "error": null
+        }
+      ],
+      "model_sha256": "f081b2d5e23bd669d92cc331d722a8a0681943b8e6f34b48996fd5c319b5acd8",
+      "runtime_revision": "8facde6fcd8fb9caa585a5788ab450df6e8ec7db",
+      "source_audio_sha256": "59dfb9a4acb36fe2a2affc14bacbee2920ff435cb13cc314a08c13f66ba7860e",
+      "native_binary_sha256": "a5e5d735f54ce63d1a1f11a455fe2540ffa24367633798fca69865aa5bdf0b7e",
+      "memory_peak_bytes_including_file_cache": 1458577408,
+      "memory_events": "low 0\nhigh 0\nmax 0\noom 0\noom_kill 0\noom_group_kill 0\nsock_throttled 0\n",
+      "cpu_max": "400000 100000",
+      "cpuset_effective": "0-3",
+      "sequence": 6
+    },
+    {
+      "threads": 2,
+      "worker_validation_override_for_benchmark": false,
+      "architecture": "aarch64",
+      "results": [
+        {
+          "fixture": "public_jfk",
+          "audio_seconds": 11.0,
+          "elapsed_seconds": 3.923179542995058,
+          "real_time_factor": 0.35665268572682346,
+          "cpu_seconds": 7.129696,
+          "average_cpu_cores": 1.817325952550467,
+          "throttled_usec": 0,
+          "native_children_peak_rss_kib": 1313456,
+          "transcript_characters": 108,
+          "transcript_sha256": "c3d6020f49a0762c0ffe655f3ba99ee0131325bfea9ff68aed8ad096350db99f",
+          "native_thread_settings": [
+            2
+          ],
+          "error": null
+        },
+        {
+          "fixture": "synthetic_3x_jfk",
+          "audio_seconds": 33.0,
+          "elapsed_seconds": 10.845381545950659,
+          "real_time_factor": 0.32864792563486844,
+          "cpu_seconds": 20.551935,
+          "average_cpu_cores": 1.894994188348632,
+          "throttled_usec": 0,
+          "native_children_peak_rss_kib": 1409240,
+          "transcript_characters": 326,
+          "transcript_sha256": "ebed5b7affbcb6d1825f84d3e7cd83eed427721e1c1b321caf7d634c250294a0",
+          "native_thread_settings": [
+            2,
+            2
+          ],
+          "error": null
+        }
+      ],
+      "model_sha256": "f081b2d5e23bd669d92cc331d722a8a0681943b8e6f34b48996fd5c319b5acd8",
+      "runtime_revision": "8facde6fcd8fb9caa585a5788ab450df6e8ec7db",
+      "source_audio_sha256": "59dfb9a4acb36fe2a2affc14bacbee2920ff435cb13cc314a08c13f66ba7860e",
+      "native_binary_sha256": "a5e5d735f54ce63d1a1f11a455fe2540ffa24367633798fca69865aa5bdf0b7e",
+      "memory_peak_bytes_including_file_cache": 1459027968,
+      "memory_events": "low 0\nhigh 0\nmax 0\noom 0\noom_kill 0\noom_group_kill 0\nsock_throttled 0\n",
+      "cpu_max": "400000 100000",
+      "cpuset_effective": "0-3",
+      "sequence": 7
+    },
+    {
+      "threads": 4,
+      "worker_validation_override_for_benchmark": true,
+      "architecture": "aarch64",
+      "results": [
+        {
+          "fixture": "public_jfk",
+          "audio_seconds": 11.0,
+          "elapsed_seconds": 2.3536698759999126,
+          "real_time_factor": 0.21396998872726478,
+          "cpu_seconds": 7.485274,
+          "average_cpu_cores": 3.1802565331384978,
+          "throttled_usec": 3558,
+          "native_children_peak_rss_kib": 1313304,
+          "transcript_characters": 108,
+          "transcript_sha256": "c3d6020f49a0762c0ffe655f3ba99ee0131325bfea9ff68aed8ad096350db99f",
+          "native_thread_settings": [
+            4
+          ],
+          "error": null
+        },
+        {
+          "fixture": "synthetic_3x_jfk",
+          "audio_seconds": 33.0,
+          "elapsed_seconds": 6.519589795032516,
+          "real_time_factor": 0.19756332712219746,
+          "cpu_seconds": 22.39164,
+          "average_cpu_cores": 3.434516695676299,
+          "throttled_usec": 4902,
+          "native_children_peak_rss_kib": 1410212,
+          "transcript_characters": 326,
+          "transcript_sha256": "ebed5b7affbcb6d1825f84d3e7cd83eed427721e1c1b321caf7d634c250294a0",
+          "native_thread_settings": [
+            4,
+            4
+          ],
+          "error": null
+        }
+      ],
+      "model_sha256": "f081b2d5e23bd669d92cc331d722a8a0681943b8e6f34b48996fd5c319b5acd8",
+      "runtime_revision": "8facde6fcd8fb9caa585a5788ab450df6e8ec7db",
+      "source_audio_sha256": "59dfb9a4acb36fe2a2affc14bacbee2920ff435cb13cc314a08c13f66ba7860e",
+      "native_binary_sha256": "a5e5d735f54ce63d1a1f11a455fe2540ffa24367633798fca69865aa5bdf0b7e",
+      "memory_peak_bytes_including_file_cache": 1460482048,
+      "memory_events": "low 0\nhigh 0\nmax 0\noom 0\noom_kill 0\noom_group_kill 0\nsock_throttled 0\n",
+      "cpu_max": "400000 100000",
+      "cpuset_effective": "0-3",
+      "sequence": 8
+    },
+    {
+      "threads": 1,
+      "worker_validation_override_for_benchmark": false,
+      "architecture": "aarch64",
+      "results": [
+        {
+          "fixture": "public_jfk",
+          "audio_seconds": 11.0,
+          "elapsed_seconds": 6.492125043994747,
+          "real_time_factor": 0.5901931858177043,
+          "cpu_seconds": 6.345308,
+          "average_cpu_cores": 0.9773853641142427,
+          "throttled_usec": 0,
+          "native_children_peak_rss_kib": 1314616,
+          "transcript_characters": 108,
+          "transcript_sha256": "c3d6020f49a0762c0ffe655f3ba99ee0131325bfea9ff68aed8ad096350db99f",
+          "native_thread_settings": [
+            1
+          ],
+          "error": null
+        },
+        {
+          "fixture": "synthetic_3x_jfk",
+          "audio_seconds": 33.0,
+          "elapsed_seconds": 17.732748048962094,
+          "real_time_factor": 0.5373560014836998,
+          "cpu_seconds": 17.549796,
+          "average_cpu_cores": 0.9896828146175121,
+          "throttled_usec": 0,
+          "native_children_peak_rss_kib": 1408932,
+          "transcript_characters": 326,
+          "transcript_sha256": "ebed5b7affbcb6d1825f84d3e7cd83eed427721e1c1b321caf7d634c250294a0",
+          "native_thread_settings": [
+            1,
+            1
+          ],
+          "error": null
+        }
+      ],
+      "model_sha256": "f081b2d5e23bd669d92cc331d722a8a0681943b8e6f34b48996fd5c319b5acd8",
+      "runtime_revision": "8facde6fcd8fb9caa585a5788ab450df6e8ec7db",
+      "source_audio_sha256": "59dfb9a4acb36fe2a2affc14bacbee2920ff435cb13cc314a08c13f66ba7860e",
+      "native_binary_sha256": "a5e5d735f54ce63d1a1f11a455fe2540ffa24367633798fca69865aa5bdf0b7e",
+      "memory_peak_bytes_including_file_cache": 1458229248,
+      "memory_events": "low 0\nhigh 0\nmax 0\noom 0\noom_kill 0\noom_group_kill 0\nsock_throttled 0\n",
+      "cpu_max": "400000 100000",
+      "cpuset_effective": "0-3",
+      "sequence": 9
+    }
+  ],
+  "current_configuration_smoke": {
+    "threads": 4,
+    "architecture": "aarch64",
+    "results": [
+      {
+        "fixture": "public_jfk",
+        "audio_seconds": 11.0,
+        "elapsed_seconds": 2.307780125993304,
+        "real_time_factor": 0.20979819327211854,
+        "cpu_seconds": 7.192339,
+        "average_cpu_cores": 3.1165616338360254,
+        "throttled_usec": 643,
+        "native_children_peak_rss_kib": 1313380,
+        "transcript_characters": 108,
+        "transcript_sha256": "c3d6020f49a0762c0ffe655f3ba99ee0131325bfea9ff68aed8ad096350db99f",
+        "error": null
+      },
+      {
+        "fixture": "synthetic_3x_jfk",
+        "audio_seconds": 33.0,
+        "elapsed_seconds": 6.772621253039688,
+        "real_time_factor": 0.20523094706180872,
+        "cpu_seconds": 22.090677,
+        "average_cpu_cores": 3.2617617573233204,
+        "throttled_usec": 775,
+        "native_children_peak_rss_kib": 1408992,
+        "transcript_characters": 326,
+        "transcript_sha256": "ebed5b7affbcb6d1825f84d3e7cd83eed427721e1c1b321caf7d634c250294a0",
+        "error": null
+      }
+    ],
+    "model_sha256": "f081b2d5e23bd669d92cc331d722a8a0681943b8e6f34b48996fd5c319b5acd8",
+    "runtime_revision": "8facde6fcd8fb9caa585a5788ab450df6e8ec7db",
+    "source_audio_sha256": "59dfb9a4acb36fe2a2affc14bacbee2920ff435cb13cc314a08c13f66ba7860e",
+    "native_binary_sha256": "a5e5d735f54ce63d1a1f11a455fe2540ffa24367633798fca69865aa5bdf0b7e",
+    "memory_peak_bytes_including_file_cache": 1458552832,
+    "memory_events": "low 0\nhigh 0\nmax 0\noom 0\noom_kill 0\noom_group_kill 0\nsock_throttled 0\n",
+    "cpu_max": "400000 100000",
+    "cpuset_effective": "0-3"
+  },
+  "current_configuration_smoke_note": "After removing the validation ceiling: real worker Config(WORKER_THREADS=4), without a benchmark Config override; same offline 4-CPU/3Gi ARM64 limits and public audio.",
+  "historical_worker_supports_threads_above_two_without_changes": false
+}

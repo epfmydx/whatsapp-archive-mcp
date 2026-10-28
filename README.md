@@ -39,6 +39,12 @@ audio; audio archived while disabled is not automatically backfilled.
 S3 remains the default storage backend. See [configuration](docs/configuration.md).
 Changing backends does not migrate existing files or object keys.
 
+With ASR enabled, `worker.threads` accepts positive integers without a fixed
+server-size ceiling. Set CPU/memory requests and limits through `worker.resources`.
+The default remains one thread and 3Gi memory. See [ASR tuning and measured thread
+scaling](docs/asr-tuning.md). Build the updated worker image before choosing more
+than two threads; earlier worker versions reject them.
+
 ## Deploy
 
 1. Build the app, bridge and optional worker images from `service/`, `bridge/`

@@ -399,8 +399,7 @@
         },
         "threads": {
           "type": "integer",
-          "minimum": 1,
-          "maximum": 2
+          "minimum": 1
         },
         "audioChunkSeconds": {
           "type": "integer",
@@ -432,7 +431,8 @@
         }
       },
       "required": [
-        "enabled"
+        "enabled",
+        "threads"
       ]
     },
     "ingress": {

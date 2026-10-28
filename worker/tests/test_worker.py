@@ -18,9 +18,36 @@ def config(**extra):
 
 class WorkerTests(unittest.TestCase):
     def test_attempt_token_and_bounds(self):
-        for override in ({"JOB_TOKEN": "bad\nheader"}, {"WORKER_THREADS": "3"}, {"AUDIO_CHUNK_SECONDS": "31"}, {"MAX_AUDIO_SECONDS": "1801"}, {"MODEL_URL": "http://untrusted/model"}, {"MODEL_SHA256": "0" * 64}, {"APP_INTERNAL_URL": "http://user:pass@app"}):
+        for override in ({"JOB_TOKEN": "bad\nheader"}, {"WORKER_THREADS": "0"}, {"AUDIO_CHUNK_SECONDS": "31"}, {"MAX_AUDIO_SECONDS": "1801"}, {"MODEL_URL": "http://untrusted/model"}, {"MODEL_SHA256": "0" * 64}, {"APP_INTERNAL_URL": "http://user:pass@app"}):
             with self.subTest(override=override), self.assertRaises(worker.WorkerError):
                 config(**override)
+
+    def test_threads_are_positive_integers_without_fixed_server_ceiling(self):
+        self.assertEqual(config().threads, 1)
+        for count in (1, 2, 4, 16, 64, 256, 999):
+            with self.subTest(count=count):
+                self.assertEqual(config(WORKER_THREADS=str(count)).threads, count)
+        for value in ("0", "-1", "", "1.5", "2e3", "true", "NaN", None, True, False, 1.5):
+            with self.subTest(value=value), self.assertRaises(worker.WorkerError):
+                config(WORKER_THREADS=value)
+
+    def test_configured_thread_count_reaches_native_executable(self):
+        for count in (4, 64, 256):
+            with self.subTest(count=count), tempfile.TemporaryDirectory() as tmp:
+                root = Path(tmp)
+                calls = []
+
+                def fake(args, timeout):
+                    calls.append(args)
+                    if args[0] == "ffprobe":
+                        return '{"format":{"duration":"11.0"}}'
+                    if args[0] == "ffmpeg":
+                        return ""
+                    return json.dumps({"file": str(root / "chunk.wav"), "text": "synthetic"})
+
+                worker.transcribe(root / "audio", root / "model", config(WORKER_THREADS=str(count)), root, fake)
+                native = next(args for args in calls if args[0] == "transcribe-cli")
+                self.assertEqual(native[native.index("--threads") + 1], str(count))
 
     def test_claim_cannot_reference_other_account_or_arbitrary_url(self):
         cfg = config()

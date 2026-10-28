@@ -100,6 +100,7 @@ worker:
   tolerations: []
   affinity: {}
   podAnnotations: {}
+  # Positive integer; choose alongside CPU requests/limits for the target node.
   threads: 1
   audioChunkSeconds: 30
   maxAudioSeconds: 1800

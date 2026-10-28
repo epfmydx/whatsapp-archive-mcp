@@ -29,11 +29,14 @@ class NoRedirect(HTTPRedirectHandler):
 
 
 def bounded_int(env, key, default, low, high):
+    raw = env.get(key, default)
+    if type(raw) not in (str, int):
+        raise WorkerError("invalid worker bounds")
     try:
-        value = int(env.get(key, default))
+        value = int(raw)
     except ValueError:
         raise WorkerError("invalid worker bounds") from None
-    if not low <= value <= high:
+    if value < low or (high is not None and value > high):
         raise WorkerError("invalid worker bounds")
     return value
 
@@ -49,7 +52,7 @@ class Config:
         url = urlsplit(self.app_url)
         if url.scheme not in ("http", "https") or not url.hostname or url.username or url.password or url.query or url.fragment or url.path not in ("", "/"):
             raise WorkerError("invalid internal API URL")
-        self.threads = bounded_int(env, "WORKER_THREADS", 1, 1, 2)
+        self.threads = bounded_int(env, "WORKER_THREADS", 1, 1, None)
         self.chunk_seconds = bounded_int(env, "AUDIO_CHUNK_SECONDS", 30, 1, 30)
         self.max_seconds = bounded_int(env, "MAX_AUDIO_SECONDS", 1800, 1, 1800)
         self.max_bytes = bounded_int(env, "MAX_MEDIA_BYTES", 104857600, 1, 104857600)

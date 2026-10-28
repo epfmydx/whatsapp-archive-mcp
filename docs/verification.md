@@ -1,6 +1,49 @@
 # Public edition verification — 27 October 2026
 
-## Recovery compatibility follow-up — 28 October 2026 (unreleased)
+## Accepted recovery/ASR source port — 28 October 2026
+
+Baseline public commit `aa62071e3dff8f8cff770b44d8f6092c53eb2c70`, plus the
+current source/test/documentation candidate. The owner accepted the private
+deployment before requesting this port. Public-specific disk/S3 support,
+optional ASR, read-only MCP and Linux/DESKTOP identity remain intact. Source
+chart/appVersion is 0.7.3; no public binary/container/model release is implied.
+
+The earlier [public CI run](https://github.com/epfmydx/whatsapp-archive-mcp/actions/runs/40609546697)
+failed because a test searched the whole diagnostic JSON for `999`, which random
+opaque correlation IDs may contain. The corrected test forces this collision,
+checks the IDs separately and still rejects raw private/provider values elsewhere.
+The media-recovery and update-retention runtime fixes were already in the public
+baseline; this correction changes only that regression test.
+
+The port removes the fixed thread ceiling from worker/chart validation, retains
+positive-integer/type checks, preserves other worker bounds, and tests exact
+native-argument/resource forwarding plus the controller checksum. CPU/RAM remain
+Helm values. Controlled 1/2/4-thread public-English measurements and the separate
+reported cluster improvement are documented in [ASR tuning](asr-tuning.md).
+
+Local public qualification passed:
+
+- **642 service tests passed, 14 skipped**. Skips are optional PostgreSQL cases
+  reserved for the separate disposable CI database pass; no live database used.
+- **42 chart tests and 127 subtests passed**; strict Helm lint passed. The public
+  schema requires both `worker.enabled` and `worker.threads`, preserving the
+  optional-ASR contract while rejecting null thread settings.
+- **17 worker tests passed**, including disk backend integrity/path checks and
+  higher-thread configuration/native-argument cases.
+- The full public bridge suite and `go vet` passed in a disposable offline
+  compiler container. The corrected notification-privacy regression also passed
+  **200 repetitions** with deterministic correlation-ID collisions.
+- Independent GPT-6.1 Sol review at high effort checked source, documentation,
+  privacy and structured benchmark consistency, reran the worker suite and
+  rechecked the repaired schema with strict duplicate-key detection. No actionable
+  findings remained. Local Markdown targets and whitespace were checked.
+
+Public source CI is pending at this candidate checkpoint. No runtime data,
+private deployment logs/history/URLs, secrets or private media were copied.
+No live pairing, receipt, requeue, deployment or public image/chart/model registry
+publication is performed by this port.
+
+## Recovery compatibility follow-up — 28 October 2026 (historical source checkpoint)
 
 Baseline `e0f59ae6ae493cc0d129a5e8b5188c66560aadf9`, plus local bridge/tests/docs
 changes. The shared recovery patch supports `/o1/v/` with signed-byte/integrity
@@ -18,8 +61,9 @@ documentation links were checked.
 A fresh GPT-6.1 Sol reviewer at high effort inspected the integrated source,
 tests and operating guidance in both editions; no actionable findings remained.
 
-No source publication, tag, image/chart release, deployment or live phone request
-was performed. Existing quarantined media is not automatically retried. Follow
+At this checkpoint, no source publication, tag, image/chart release, deployment or
+live phone request had been performed. The source was later pushed and CI exposed
+the assertion issue described above. Existing quarantined media is not automatically retried. Follow
 the [bridge's single-item test guidance](../bridge/README.md#own-phone-media-recovery)
 after a separately authorized deployment; synthetic checks do not establish
 actual paired-phone or CDN recovery.

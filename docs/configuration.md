@@ -93,3 +93,11 @@ With ASR enabled, CPU Jobs run on demand with one active job across profiles.
 Requests must fit a node's allocatable resources. Performance, RAM and language
 accuracy depend on the model, audio and hardware; cached synthetic measurements
 are not an acceptance guarantee. No GPU or cloud inference API is required.
+
+Source chart 0.7.3 accepts positive `worker.threads` integers without the former
+two-thread maximum. CPU and memory remain `worker.resources.requests` and
+`worker.resources.limits`, with no application RAM ceiling. Defaults remain one
+thread, CPU request `1000m` / limit `1500m`, and memory request/limit `3Gi`.
+Use a matching updated worker image; older images still reject larger counts.
+Existing Jobs retain their settings; new Jobs use the changed template.
+See [ASR tuning](asr-tuning.md) for allocation guidance and benchmark limits.
