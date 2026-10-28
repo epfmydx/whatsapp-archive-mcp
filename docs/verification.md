@@ -1,4 +1,4 @@
-# Public edition verification — 27 October 2026
+# Public edition verification
 
 ## Accepted recovery/ASR source port — 28 October 2026
 
@@ -38,10 +38,30 @@ Local public qualification passed:
   rechecked the repaired schema with strict duplicate-key detection. No actionable
   findings remained. Local Markdown targets and whitespace were checked.
 
-Public source CI is pending at this candidate checkpoint. No runtime data,
+At this candidate checkpoint, public source CI was pending; the completed
+publication evidence is recorded below. No runtime data,
 private deployment logs/history/URLs, secrets or private media were copied.
 No live pairing, receipt, requeue, deployment or public image/chart/model registry
 publication is performed by this port.
+
+### Source publication and CI — 28 October 2026
+
+- The deterministic recovery-test correction was committed separately as
+  `0054cc4`; ASR tuning, source chart 0.7.3 and documentation were committed as
+  `0a2f0f137a445f0e6982698ff4b3e51114898358`. Both were normally pushed to public
+  `main` after the owner confirmed private acceptance.
+- [Workflow 40631117350](https://github.com/epfmydx/whatsapp-archive-mcp/actions/runs/40631117350)
+  completed successfully on that source: **642 service tests passed, 14 skipped**
+  in the initial pass; all **14 PostgreSQL integration cases passed** separately.
+  **42 chart tests and 127 subtests**, **17 worker tests**, strict Helm lint and
+  the bridge suite/`go vet` also passed.
+- The earlier failing source-CI assertion is corrected. The complete public
+  edition was tested, retaining disk/S3, disabled-ASR behavior, Linux/DESKTOP
+  identity and the intentionally read-only MCP catalog.
+- This is source publication only. No public release tag, prebuilt image/model,
+  registry chart artifact or deployment was created. Build matching images from
+  this source. No private runtime/history/data was exported, and no private
+  checkout or running workload was changed by the port.
 
 ## Recovery compatibility follow-up — 28 October 2026 (historical source checkpoint)
 

@@ -1,5 +1,11 @@
 # Public edition implementation contract
 
+Accepted port published 2026-10-28 from
+`0a2f0f137a445f0e6982698ff4b3e51114898358`. Public source CI workflow
+`40631117350` passed all service/chart/worker/bridge and disposable PostgreSQL
+checks. See `docs/verification.md`. No public tag, registry artifact, model or
+deployment was created; the private checkout and all workloads remain unchanged.
+
 Port authorized 2026-10-28 after private acceptance: the owner reported the
 private deployment working well, with roughly 2.5× ASR improvement, and requested
 the fixes be ported here. Apply the deterministic recovery privacy-test correction
