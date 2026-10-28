@@ -169,6 +169,13 @@ func TestRecoveryNotificationDiagnostics(t *testing.T) {
 			b.sendMediaRetry = func(context.Context, *types.MessageInfo, []byte) error { return nil }
 			b.drain(context.Background())
 			r := readRecovery(t, b, name)
+			// Valid random identifiers can contain the same digits as an unknown
+			// provider enum. Exercise that collision deterministically.
+			r.ItemID = "999" + strings.Repeat("a", 29)
+			r.AttemptID = "999" + strings.Repeat("b", 29)
+			if err := b.spool.save(r, false); err != nil {
+				t.Fatal(err)
+			}
 			n := &waMmsRetry.MediaRetryNotification{StanzaID: proto.String(r.Message.ID), Result: waMmsRetry.MediaRetryNotification_SUCCESS.Enum(), DirectPath: proto.String("/o1/v/t24/PRIVATE?secret=PRIVATE")}
 			switch tc.scenario {
 			case "general":
@@ -212,7 +219,20 @@ func TestRecoveryNotificationDiagnostics(t *testing.T) {
 			if d.RecoveryBranch != tc.branch || d.NotificationResult != tc.result || d.PathValidation != tc.validation {
 				t.Fatal("notification failure branch not identifiable")
 			}
-			if strings.Contains(out.String(), "PRIVATE") || strings.Contains(out.String(), "999") {
+			if d.ItemID != r.ItemID || d.AttemptID != r.AttemptID || !opaquePattern.MatchString(d.ItemID) || !opaquePattern.MatchString(d.AttemptID) {
+				t.Fatal("diagnostic correlation identifiers changed")
+			}
+			var fields map[string]json.RawMessage
+			if err := json.Unmarshal(out.Bytes(), &fields); err != nil {
+				t.Fatal(err)
+			}
+			delete(fields, "item_id")
+			delete(fields, "attempt_id")
+			withoutIDs, err := json.Marshal(fields)
+			if err != nil {
+				t.Fatal(err)
+			}
+			if strings.Contains(out.String(), "PRIVATE") || strings.Contains(string(withoutIDs), "999") {
 				t.Fatal("notification data escaped diagnostic allowlist")
 			}
 		})
